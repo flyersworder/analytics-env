@@ -11,4 +11,5 @@ dependencies = [
     "plotly>=5.24.1",
     "requests>=2.32.3",
     "seaborn>=0.13.2",
+    "thefuzz>=0.22.1",
 ]
