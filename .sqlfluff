@@ -1,0 +1,7 @@
+[sqlfluff]
+dialect = ansi
+templater = jinja
+
+[sqlfluff:templater:jinja]
+apply_dbt_builtins = False
+undefined_vars = True
