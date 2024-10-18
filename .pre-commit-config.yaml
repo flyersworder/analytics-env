@@ -1,0 +1,24 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        args: [--line-length=88]
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v5.10.1
+    hooks:
+      - id: isort
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: '1.8.7'
+    hooks:
+      - id: nbqa-black
+        args: [--line-length=88]
+      - id: nbqa-isort
+  - repo: local
+    hooks:
+      - id: format-sql-in-notebooks
+        name: Format SQL in Notebooks
+        entry: uv run python scripts/format_sql_in_notebook.py
+        language: python
+        files: \.ipynb$
+        additional_dependencies: ["sqlfluff==3.2.4", "nbformat"]
