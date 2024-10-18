@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "astor>=0.8.1",
     "jupysql>=0.10.14",
     "matplotlib>=3.9.2",
     "nbformat>=5.10.4",
