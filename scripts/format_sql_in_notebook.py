@@ -453,7 +453,10 @@ def format_sql_in_code(
         if not formatter.changed:
             # No changes were made to the AST
             return code
-        formatted_code = astor.to_source(tree)
+        try:
+            formatted_code = ast.unparse(tree)
+        except AttributeError:
+            formatted_code = astor.to_source(tree)
         return formatted_code
     except Exception as e:
         logger.debug(f"Error parsing code: {e}")
@@ -543,6 +546,10 @@ def format_sql_in_notebook(
                         sqlfluff_rules,
                         sqlfluff_fix_args,
                     )
+
+                    # Add logging statements to compare original and formatted code
+                    logger.debug(f"Original code:\n{original_code}")
+                    logger.debug(f"Formatted code:\n{formatted_code}")
 
                     code_changed = formatted_code != code_with_formatted_magic
                     if code_changed or magic_changed:
