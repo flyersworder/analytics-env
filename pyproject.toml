@@ -24,7 +24,7 @@ dependencies = [
 [tool.ruff]
 line-length = 88  # Match Black's line length
 target-version = "py312"  # Set to your Python version
-extend-ignore = [
+lint.extend-ignore = [
     "ANN",  # Ignore missing type annotations
     "D",    # Ignore docstring-related warnings
     "E501", # Ignore line length warnings (since Black handles formatting)
