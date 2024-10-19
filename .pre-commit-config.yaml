@@ -21,4 +21,6 @@ repos:
         entry: uv run python scripts/format_sql_in_notebook.py
         language: python
         files: \.ipynb$
+        pass_filenames: true
+        verbose: true
         additional_dependencies: ["sqlfluff==3.2.4", "nbformat", "astor", "Jinja2"]
