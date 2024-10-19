@@ -18,3 +18,31 @@ dependencies = [
     "sqlfluff>=3.2.4",
     "thefuzz>=0.22.1",
 ]
+
+# pyproject.toml
+
+[tool.ruff]
+line-length = 88  # Match Black's line length
+target-version = "py312"  # Set to your Python version
+extend-ignore = [
+    "ANN",  # Ignore missing type annotations
+    "D",    # Ignore docstring-related warnings
+    "E501", # Ignore line length warnings (since Black handles formatting)
+    "T201", # Ignore warnings about print statements
+    "FBT003", # Ignore boolean positional value in function calls
+    "C901", # Ignore complexity warnings
+    "PLR0912", # Ignore too many branches
+    "PLR0913", # Ignore too many arguments
+    "PLR0915", # Ignore too many statements
+    "SIM102", # Ignore simplified conditions
+    "UP038", # Ignore use of 'X | Y' in isinstance
+    "BLE001", # Ignore blind exception catches
+    "TRY300", # Ignore 'else' block suggestions
+    "RET504", # Ignore unnecessary assignment before return
+    "G004",  # Ignore logging format warnings
+    "ERA001", # Ignore commented-out code warnings
+    "N802",  # Ignore function name case warnings
+    "INP001", # Ignore implicit namespace package warnings
+]
+# You can also specify rules to enforce if needed
+# select = ["E", "F", "W", "C", "N", "B"]

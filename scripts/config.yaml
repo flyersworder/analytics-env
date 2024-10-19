@@ -1,0 +1,36 @@
+# config.yaml
+
+sql_keywords:
+  - SELECT
+  - FROM
+  - WHERE
+  - INSERT
+  - UPDATE
+  - DELETE
+  - WITH
+  - JOIN
+  - CREATE
+  - DROP
+  - ALTER
+  - TRUNCATE
+  - UNION
+  - EXCEPT
+  - INTERSECT
+  - GROUP BY
+  - ORDER BY
+  - HAVING
+  - LIMIT
+  - OFFSET
+  - DISTINCT
+
+function_names:
+  - read_sql
+  - read_sql_query
+  - read_sql_table
+  - execute
+  - executescript
+  - fetchall
+  - fetchone
+  - fetchmany
+
+# Additional configurations can be added here

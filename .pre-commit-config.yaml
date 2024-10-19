@@ -1,26 +1,144 @@
 repos:
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.7.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+        exclude: |
+          (^|/)(
+            venv/|
+            env/|
+            .venv/|
+            build/|
+            dist/|
+            .ipynb_checkpoints/
+          )
   - repo: https://github.com/psf/black
     rev: 24.10.0
     hooks:
       - id: black
         args: [--line-length=88]
-  - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.10.1
-    hooks:
-      - id: isort
+        exclude: |
+          (^|/)(
+            venv/|
+            env/|
+            .venv/|
+            build/|
+            dist/|
+            .ipynb_checkpoints/
+          )
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: '1.8.7'
+    rev: 1.8.7
     hooks:
       - id: nbqa-black
         args: [--line-length=88]
-      - id: nbqa-isort
+        exclude: |
+          (^|/)(
+            venv/|
+            env/|
+            .venv/|
+            build/|
+            dist/|
+            .ipynb_checkpoints/
+          )
+      - id: nbqa-ruff
+        args: [--fix, "--line-length=88"]
+        exclude: |
+          (^|/)(
+            venv/|
+            env/|
+            .venv/|
+            build/|
+            dist/|
+            .ipynb_checkpoints/
+          )
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: 3.2.4
+    hooks:
+      - id: sqlfluff-fix
+        args: ["--dialect", "ansi"]
+        files: \.sql$  # Only process .sql files
+        exclude: |
+          (^|/)(
+            venv/|
+            env/|
+            .venv/|
+            build/|
+            dist/
+          )
   - repo: local
     hooks:
-      - id: format-sql-in-notebooks
+      - id: format-sql-in-notebook
         name: Format SQL in Notebooks
-        entry: uv run python scripts/format_sql_in_notebook.py
-        language: python
-        files: \.ipynb$
-        pass_filenames: true
-        verbose: true
-        additional_dependencies: ["sqlfluff==3.2.4", "nbformat", "astor", "Jinja2"]
+        entry: python scripts/format_sql_in_notebook.py
+        language: system
+        types: [jupyter]
+        args:
+          - "--dialect"
+          - "ansi"
+          - "--sqlfluff-config"
+          - ".sqlfluff"
+          - "--log-level"
+          - "INFO"
+        exclude: |
+          (^|/)(
+            venv/|
+            env/|
+            .venv/|
+            build/|
+            dist/|
+            .ipynb_checkpoints/
+          )
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.7.1
+    hooks:
+      - id: nbstripout
+        exclude: |
+          (^|/)(
+            venv/|
+            env/|
+            .venv/|
+            build/|
+            dist/|
+            .ipynb_checkpoints/
+          )
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+        exclude: |
+          (^|/)(
+            venv/|
+            env/|
+            .venv/|
+            build/|
+            dist/
+          )
+      - id: trailing-whitespace
+        exclude: |
+          (^|/)(
+            venv/|
+            env/|
+            .venv/|
+            build/|
+            dist/
+          )
+      - id: check-added-large-files
+        args: ["--maxkb=512"]  # Adjust the max file size as needed
+        exclude: |
+          (^|/)(
+            venv/|
+            env/|
+            .venv/|
+            build/|
+            dist/
+          )
+      - id: check-ast
+        exclude: |
+          (^|/)(
+            venv/|
+            env/|
+            .venv/|
+            build/|
+            dist/
+          )

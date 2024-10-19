@@ -1,0 +1,90 @@
+# .sqlfluff
+
+[sqlfluff]
+# General configurations for SQLFluff
+dialect = ansi  # Set the SQL dialect (e.g., ansi, postgres, mysql)
+templater = jinja  # Use Jinja templater for SQL files
+rules = all  # Apply all rules unless specified in 'exclude_rules'
+exclude_rules = None  # Specify rules to exclude if any
+max_line_length = 80  # Set maximum line length for SQL statements
+output_line_length = 80  # Control SQLFluff output line length
+tab_space_size = 2  # Number of spaces for indentation
+
+[sqlfluff:indentation]
+# Indentation settings
+tab_space_size = 2  # Ensure consistent indentation size
+indent_unit = space  # Use spaces for indentation
+indented_joins = False  # Do not indent JOIN clauses
+indented_ctes = False  # Do not indent CTEs (WITH clauses)
+indented_using_on = False  # Do not indent USING and ON clauses
+indented_on_contents = False  # Do not indent contents of ON clauses
+indented_where_contents = True  # Indent contents of WHERE clauses
+indented_then_contents = True  # Indent contents of THEN clauses
+
+[sqlfluff:layout:type:comma]
+# Comma layout settings
+spacing_before = touch  # No space before commas
+line_position = trailing  # Place commas at the end of lines
+
+[sqlfluff:layout:type:where_clause]
+line_position = alone:strict  # WHERE clauses must be on a new line
+
+[sqlfluff:layout:type:groupby_clause]
+line_position = alone:strict  # GROUP BY clauses must be on a new line
+
+[sqlfluff:layout:type:orderby_clause]
+line_position = alone:strict  # ORDER BY clauses must be on a new line
+
+[sqlfluff:rules]
+# General rule configurations
+allow_scalar = True  # Allow scalar subqueries
+single_table_references = consistent  # Consistent table references
+unquoted_identifiers_policy = all  # Policy for unquoted identifiers
+
+[sqlfluff:rules:capitalisation.keywords]
+# Capitalization settings for keywords
+capitalisation_policy = upper  # Enforce uppercase for keywords
+ignore_words = None  # No words to ignore
+ignore_words_regex = None  # No regex pattern for words to ignore
+
+[sqlfluff:rules:capitalisation.identifiers]
+# Capitalization settings for identifiers
+extended_capitalisation_policy = upper  # Enforce uppercase for identifiers
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:capitalisation.functions]
+# Capitalization settings for function names
+extended_capitalisation_policy = upper  # Enforce uppercase for functions
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:capitalisation.types]
+# Capitalization settings for data types
+extended_capitalisation_policy = upper  # Enforce uppercase for data types
+ignore_words = None
+ignore_words_regex = None
+
+[sqlfluff:rules:aliasing.table]
+# Table aliasing preferences
+aliasing = explicit  # Require explicit table aliases
+
+[sqlfluff:rules:aliasing.column]
+# Column aliasing preferences
+aliasing = explicit  # Require explicit column aliases
+
+[sqlfluff:rules:convention.select_trailing_comma]
+# Trailing comma in SELECT clause
+select_clause_trailing_comma = forbid  # Disallow trailing commas
+
+[sqlfluff:rules:references.special_chars]
+# Special characters in identifiers
+allow_space_in_identifier = False  # Do not allow spaces in identifiers
+
+[sqlfluff:rules:layout.long_lines]
+# Long lines configuration
+max_line_length = 80  # Enforce maximum line length of 80 characters
+
+[sqlfluff:rules:structure.subquery]
+# Subquery usage in clauses
+forbid_subquery_in = join  # Forbid subqueries in JOIN clauses
