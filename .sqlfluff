@@ -1,160 +1,38 @@
 # .sqlfluff
 
 [sqlfluff]
-# General configurations for SQLFluff
-
-# Set the SQL dialect (e.g., ansi, postgres, mysql)
 dialect = ansi
-
-# Use Jinja templater for SQL files
 templater = jinja
-
-# Apply all rules unless specified in 'exclude_rules'
-rules = all
-
-# Specify rules to exclude if any
-exclude_rules = None
-
-# Set maximum line length for SQL statements
+rules = L003,L010,L014,L016,L019,L036,L040,L042,L050
 max_line_length = 80
-
-# Control SQLFluff output line length
-output_line_length = 80
-
-# Number of spaces for indentation
 tab_space_size = 2
-
-[sqlfluff:indentation]
-# Indentation settings
-
-# Ensure consistent indentation size
-tab_space_size = 2
-
-# Use spaces for indentation
-indent_unit = space
-
-# Do not indent JOIN clauses
-indented_joins = False
-
-# Do not indent CTEs (WITH clauses)
-indented_ctes = False
-
-# Do not indent USING and ON clauses
-indented_using_on = False
-
-# Do not indent contents of ON clauses
-indented_on_contents = False
-
-# Indent contents of WHERE clauses
-indented_where_contents = True
-
-# Indent contents of THEN clauses
-indented_then_contents = True
-
-[sqlfluff:layout:type:comma]
-# Comma layout settings
-
-# No space before commas
-spacing_before = touch
-
-# Place commas at the end of lines
-line_position = trailing
-
-[sqlfluff:layout:type:where_clause]
-# WHERE clauses must be on a new line
-line_position = alone:strict
-
-[sqlfluff:layout:type:groupby_clause]
-# GROUP BY clauses must be on a new line
-line_position = alone:strict
-
-[sqlfluff:layout:type:orderby_clause]
-# ORDER BY clauses must be on a new line
-line_position = alone:strict
 
 [sqlfluff:rules]
-# General rule configurations
+tab_space_size = 2
 
-# Allow scalar subqueries
-allow_scalar = True
+[sqlfluff:rules:L003]  # Indentation
+indent_unit = space
 
-# Consistent table references
-single_table_references = consistent
-
-# Policy for unquoted identifiers
-unquoted_identifiers_policy = all
-
-[sqlfluff:rules:capitalisation.keywords]
-# Capitalization settings for keywords
-
-# Enforce uppercase for keywords
+[sqlfluff:rules:L010]  # Capitalization of keywords
 capitalisation_policy = upper
 
-# No words to ignore
-ignore_words = None
+[sqlfluff:rules:L014]  # Capitalization of unquoted identifiers
+capitalisation_policy = consistent  # Use 'consistent' or 'lower' as desired
 
-# No regex pattern for words to ignore
-ignore_words_regex = None
+[sqlfluff:rules:L016]  # Line breaks before/after keywords
+line_break_before = from, where, group by, order by, having, limit, offset, and, or
 
-[sqlfluff:rules:capitalisation.identifiers]
-# Capitalization settings for identifiers
+[sqlfluff:rules:L019]  # Leading/Trailing commas
+comma_style = trailing
 
-# Enforce uppercase for identifiers
-extended_capitalisation_policy = upper
+[sqlfluff:rules:L036]  # Select clause alignment
+select_clause_style = newline
 
-ignore_words = None
-ignore_words_regex = None
+[sqlfluff:rules:L040]  # Capitalization of datatypes
+capitalisation_policy = upper
 
-[sqlfluff:rules:capitalisation.functions]
-# Capitalization settings for function names
-
-# Enforce uppercase for functions
-extended_capitalisation_policy = upper
-
-ignore_words = None
-ignore_words_regex = None
-
-[sqlfluff:rules:capitalisation.types]
-# Capitalization settings for data types
-
-# Enforce uppercase for data types
-extended_capitalisation_policy = upper
-
-ignore_words = None
-ignore_words_regex = None
-
-[sqlfluff:rules:aliasing.table]
-# Table aliasing preferences
-
-# Require explicit table aliases
+[sqlfluff:rules:L042]  # Alias usage in from clauses
 aliasing = explicit
 
-[sqlfluff:rules:aliasing.column]
-# Column aliasing preferences
-
-# Require explicit column aliases
-aliasing = explicit
-
-[sqlfluff:rules:convention.select_trailing_comma]
-# Trailing comma in SELECT clause
-
-# Disallow trailing commas
-select_clause_trailing_comma = forbid
-
-[sqlfluff:rules:references.special_chars]
-# Special characters in identifiers
-
-# Do not allow spaces in identifiers
-allow_space_in_identifier = False
-
-[sqlfluff:rules:layout.long_lines]
-# Long lines configuration
-
-# Enforce maximum line length of 80 characters
-max_line_length = 80
-
-[sqlfluff:rules:structure.subquery]
-# Subquery usage in clauses
-
-# Forbid subqueries in JOIN clauses
-forbid_subquery_in = join
+[sqlfluff:rules:L050]  # Newlines around binary operators
+operator_new_lines = before
