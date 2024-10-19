@@ -70,7 +70,7 @@ repos:
     hooks:
       - id: format-sql-in-notebook
         name: Format SQL in Notebooks
-        entry: python scripts/format_sql_in_notebook.py
+        entry: uv run python scripts/format_sql_in_notebook.py
         language: system
         types: [jupyter]
         args:

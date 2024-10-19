@@ -98,7 +98,7 @@ AUC (Area Under Curve):
 - The higher the better
 
 ## 5. Practical Tips
-1. **For Imbalanced Data**: 
+1. **For Imbalanced Data**:
    - Avoid accuracy (it can be misleading)
    - Prefer F1 score or ROC-AUC
 

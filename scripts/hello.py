@@ -1,9 +1,6 @@
-def main():
-    print("Hello from analytics-env!")
+from collections import Counter
 
-
-if __name__ == "__main__":
-    main()
+Counter("string")
 
 
 list1 = [1, 3, 5]
@@ -49,7 +46,7 @@ def binarySearch(arr, low, high, x):
             return mid
 
         # If x is greater, ignore left half
-        elif arr[mid] < x:
+        if arr[mid] < x:
             low = mid + 1
 
         # If x is smaller, ignore right half
@@ -63,8 +60,6 @@ def binarySearch(arr, low, high, x):
 
 binarySearch(arr, 0, len(arr) - 1, 5)
 
-import random
-
 
 def find_unique_char(char: str):
     char_dict = {}
@@ -74,7 +69,7 @@ def find_unique_char(char: str):
     for key, value in char_dict.items():
         if value == 1:
             print(
-                f"the first non-repeating caharacter is {key} at index {list(char).index(key)}"
+                f"the first non-repeating caharacter is {key} at index {list(char).index(key)}",
             )
             break
     else:
@@ -82,8 +77,6 @@ def find_unique_char(char: str):
 
 
 find_unique_char("guess")
-
-import heapq
 
 
 def is_balanced(s):
@@ -152,12 +145,12 @@ set("hello")
 "hello".count("h")
 
 
-def find_pairs(l: list, value: int):
+def find_pairs(list_name: list, value: int):
     results = []
-    for i in range(len(l)):
-        for j in range(i + 1, len(l)):
-            if l[i] + l[j] == value:
-                results.append((l[i], l[j]))
+    for i in range(len(list_name)):
+        for j in range(i + 1, len(list_name)):
+            if list_name[i] + list_name[j] == value:
+                results.append((list_name[i], list_name[j]))
     return results
 
 
@@ -168,8 +161,3 @@ k = 1
 for i in range(1, n + 1):
     k *= i
 k
-
-
-from collections import Counter
-
-Counter("string")
