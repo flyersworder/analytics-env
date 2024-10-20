@@ -71,79 +71,60 @@ def format_magic_commands(code, sql_keywords):
     - %%sql: Formats multi-line SQL statements.
     - %sql: Formats single-line SQL statements.
     """
+    lines = code.split("\n")
+    new_lines = []
+    skip_next = False
 
-    # Handle %%sql (cell magic)
-    def cell_magic_replacer(match):
-        magic = match.group("magic")
-        sql_code = match.group("sql")
+    for i, line in enumerate(lines):
+        if skip_next:
+            skip_next = False
+            continue
 
-        if not contains_sql_keywords(sql_code, sql_keywords):
-            return match.group(0)  # Return original
+        stripped = line.strip()
 
-        # Format the SQL code
-        formatted_sql = format_sql_code(sql_code)
+        # Handle %%sql magic
+        if stripped.startswith("%%sql"):
+            magic_command = stripped
+            sql_lines = []
+            # Collect all lines after %%sql until the end of the cell
+            for sql_line in lines[i + 1 :]:
+                if sql_line.strip().startswith("%%") or sql_line.strip().startswith(
+                    "%"
+                ):
+                    # Another magic command starts; stop collecting
+                    break
+                sql_lines.append(sql_line)
+            sql_code = "\n".join(sql_lines).strip()
+            if contains_sql_keywords(sql_code, sql_keywords):
+                formatted_sql = format_sql_code(sql_code)
+                formatted_cell = f"{magic_command}\n{formatted_sql}"
+                new_lines.append(formatted_cell)
+                # Skip the SQL lines as they have been processed
+                skip_next = True
+            else:
+                new_lines.append(line)
+        # Handle %sql magic
+        elif stripped.startswith("%sql"):
+            parts = line.split("%sql", 1)
+            if len(parts) == 2:
+                magic, sql_code = parts
+                sql_code = sql_code.strip()
+                if contains_sql_keywords(sql_code, sql_keywords):
+                    formatted_sql = format_sql_code(sql_code)
+                    # For line magic, keep SQL on a single line by joining
+                    formatted_sql_single_line = " ".join(
+                        formatted_sql.strip().splitlines()
+                    )
+                    new_line = f"{magic}%sql {formatted_sql_single_line}"
+                    new_lines.append(new_line)
+                else:
+                    new_lines.append(line)
+            else:
+                new_lines.append(line)
+        else:
+            new_lines.append(line)
 
-        # Remove leading indentation from each line
-        formatted_sql = "\n".join(line.lstrip() for line in formatted_sql.split("\n"))
-
-        # Reconstruct the magic command
-        new_magic = f"{magic.strip()}\n{formatted_sql}\n"
-
-        logger.debug("Formatting %%sql magic command.")
-        logger.debug(f"Original SQL:\n{sql_code}")
-        logger.debug(f"Formatted SQL:\n{formatted_sql}")
-
-        return new_magic
-
-    cell_magic_pattern = re.compile(
-        r"""
-        ^(?P<magic>%%sql\b.*\n)            # %%sql magic command
-        (?P<sql>(?:.|\n)*?)                # SQL code (non-greedy)
-        (?=^[ \t]*\S|\Z)                    # Lookahead for non-indented line or end of string
-        """,
-        re.VERBOSE | re.MULTILINE,
-    )
-
-    code = cell_magic_pattern.sub(cell_magic_replacer, code)
-
-    # Handle %sql (line magic)
-    def line_magic_replacer(match):
-        indent = match.group("indent")
-        magic = match.group("magic")
-        sql_code = match.group("sql")
-
-        if not contains_sql_keywords(sql_code, sql_keywords):
-            return match.group(0)  # Return original
-
-        # Format the SQL code
-        formatted_sql = format_sql_code(sql_code)
-
-        # For line magic, keep SQL on a single line by joining
-        formatted_sql_single_line = " ".join(
-            line.strip() for line in formatted_sql.split("\n")
-        )
-
-        # Reconstruct the magic command
-        new_magic = f"{indent}%{magic} {formatted_sql_single_line}"
-
-        logger.debug("Formatting %sql magic command.")
-        logger.debug(f"Original SQL: {sql_code}")
-        logger.debug(f"Formatted SQL: {formatted_sql_single_line}")
-
-        return new_magic
-
-    line_magic_pattern = re.compile(
-        r"""
-        ^(?P<indent>^[ \t]*)                # Indentation
-        %(?P<magic>sql)\b[ \t]+             # %sql magic command
-        (?P<sql>.+)                         # SQL code
-        """,
-        re.VERBOSE | re.MULTILINE,
-    )
-
-    code = line_magic_pattern.sub(line_magic_replacer, code)
-
-    return code
+    return "\n".join(new_lines)
 
 
 def format_assignments(code, sql_keywords):
