@@ -66,7 +66,7 @@ def format_sql_code(sql_code):
 
 
 def format_sql_in_code_cell(code, sql_keywords):
-    """Formats SQL strings assigned to variables and SQL magic commands in a code cell."""
+    """Formats SQL strings assigned to variables, function calls, and SQL magic commands in a code cell."""
     changed = False
 
     # Regular expression to match variable assignments with strings (including f-strings)
@@ -77,10 +77,45 @@ def format_sql_in_code_cell(code, sql_keywords):
         [ \t]*=[ \t]*                      # Assignment operator
         (?P<quote_prefix>[frbuFRBU]*)      # Optional prefixes (f, r, b, u)
         (?P<quote_char>['"]{1,3})          # Opening quote(s)
-        (?P<sql_code>.*?)
+        (?P<sql_code>(?:\\.|(?!\3).)*?)    # SQL code, handling escaped quotes
         (?P=quote_char)                    # Closing quote(s) matching opening
         """,
         re.VERBOSE | re.DOTALL | re.MULTILINE,
+    )
+
+    # Regular expression to match function calls with SQL string arguments
+    function_call_pattern = re.compile(
+        r"""
+        (?P<indent>^[ \t]*)                # Indentation
+        (?P<func_name>\w+)                  # Function name
+        [ \t]*\([ \t]*                      # Opening parenthesis
+        (?P<quote_prefix>[frbuFRBU]*)       # Optional string prefixes
+        (?P<quote_char>['"]{1,3})           # Opening quote(s)
+        (?P<sql_code>(?:\\.|(?!\4).)*?)     # SQL code
+        (?P=quote_char)                     # Closing quote(s) matching opening
+        [ \t]*\)                            # Closing parenthesis
+        """,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
+    )
+
+    # Regular expression to match %%sql (cell magic)
+    cell_magic_pattern = re.compile(
+        r"""
+        ^(?P<magic>%%sql\b.*\n)            # %%sql magic command
+        (?P<sql>(?:.*\n)*?)                # SQL code (non-greedy)
+        (?=^[ \t]*\S|\Z)                    # Lookahead for non-indented line or end of string
+        """,
+        re.VERBOSE | re.MULTILINE,
+    )
+
+    # Regular expression to match %sql (line magic)
+    line_magic_pattern = re.compile(
+        r"""
+        ^(?P<indent>^[ \t]*)                # Indentation
+        %(?P<magic>sql)\b[ \t]+             # %sql magic command
+        (?P<sql>.+)                         # SQL code
+        """,
+        re.VERBOSE | re.MULTILINE,
     )
 
     def assignment_replacer(match):
@@ -99,7 +134,6 @@ def format_sql_in_code_cell(code, sql_keywords):
         is_f_string = "f" in quote_prefix.lower()
         if is_f_string:
             # No placeholder replacement; assume sqlparse can handle placeholders
-            # Replace the entire SQL code with placeholders intact
             formatted_sql = format_sql_code(sql_code)
         else:
             # Not an f-string, format directly
@@ -130,19 +164,50 @@ def format_sql_in_code_cell(code, sql_keywords):
         changed = True
         return new_line
 
-    # Replace all variable assignments with formatted SQL
-    formatted_code, num_subs = assignment_pattern.subn(assignment_replacer, code)
+    def function_call_replacer(match):
+        nonlocal changed
+        indent = match.group("indent")
+        func_name = match.group("func_name")
+        quote_prefix = match.group("quote_prefix")
+        quote_char = match.group("quote_char")
+        sql_code = match.group("sql_code")
 
-    # Now handle SQL magic commands
-    # Handle %%sql (cell magic)
-    cell_magic_pattern = re.compile(
-        r"""
-        ^(?P<magic>%%sql\b.*\n)           # %%sql magic command
-        (?P<sql>(?:.*\n)*?)               # SQL code (non-greedy)
-        (?=^[ \t]*\S|\Z)                   # Lookahead for non-indented line or end of string
-        """,
-        re.VERBOSE | re.MULTILINE,
-    )
+        # Check if the string contains SQL keywords
+        if not contains_sql_keywords(sql_code, sql_keywords):
+            return match.group(0)  # Return the original string
+
+        # Handle f-strings: preserve placeholders
+        is_f_string = "f" in quote_prefix.lower()
+        if is_f_string:
+            # No placeholder replacement; assume sqlparse can handle placeholders
+            formatted_sql = format_sql_code(sql_code)
+        else:
+            # Not an f-string, format directly
+            formatted_sql = format_sql_code(sql_code)
+
+        # Wrap the formatted SQL code in triple quotes
+        if quote_char.startswith('"'):
+            triple_quote_char = '"""'
+        else:
+            triple_quote_char = "'''"
+
+        formatted_sql_wrapped = f"{triple_quote_char}{formatted_sql}{triple_quote_char}"
+
+        # Reconstruct the function call
+        new_quote_prefix = quote_prefix.replace("f", "").replace(
+            "F", ""
+        )  # Remove 'f' from prefix
+        if is_f_string:
+            new_quote_prefix = "f" + new_quote_prefix
+        new_line = f"{indent}{func_name}({new_quote_prefix}{formatted_sql_wrapped})"
+
+        # Log the change
+        logger.debug(f"Formatting function call '{func_name}'.")
+        logger.debug(f"Original SQL:\n{sql_code}")
+        logger.debug(f"Formatted SQL:\n{formatted_sql}")
+
+        changed = True
+        return new_line
 
     def cell_magic_replacer(match):
         nonlocal changed
@@ -167,21 +232,6 @@ def format_sql_in_code_cell(code, sql_keywords):
 
         changed = True
         return new_magic
-
-    # Replace all %%sql magic commands with formatted SQL
-    formatted_code, num_subs_magic = cell_magic_pattern.subn(
-        cell_magic_replacer, formatted_code
-    )
-
-    # Handle %sql (line magic)
-    line_magic_pattern = re.compile(
-        r"""
-        ^(?P<indent>^[ \t]*)               # Indentation
-        %(?P<magic>sql)\b[ \t]+            # %sql magic command
-        (?P<sql>.+)                        # SQL code
-        """,
-        re.VERBOSE | re.MULTILINE,
-    )
 
     def line_magic_replacer(match):
         nonlocal changed
@@ -208,12 +258,28 @@ def format_sql_in_code_cell(code, sql_keywords):
         changed = True
         return new_magic
 
+    # Replace all variable assignments with formatted SQL
+    formatted_code, num_subs = assignment_pattern.subn(assignment_replacer, code)
+
+    # Replace all function calls with formatted SQL
+    formatted_code, num_subs_func = function_call_pattern.subn(
+        function_call_replacer, formatted_code
+    )
+
+    # Replace all %%sql magic commands with formatted SQL
+    formatted_code, num_subs_magic = cell_magic_pattern.subn(
+        cell_magic_replacer, formatted_code
+    )
+
     # Replace all %sql magic commands with formatted SQL
     formatted_code, num_subs_line_magic = line_magic_pattern.subn(
         line_magic_replacer, formatted_code
     )
 
-    return formatted_code, changed
+    return (
+        formatted_code,
+        (num_subs + num_subs_func + num_subs_magic + num_subs_line_magic) > 0,
+    )
 
 
 def format_sql_in_notebook(notebook_path, sql_keywords):
