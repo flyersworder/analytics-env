@@ -148,6 +148,9 @@ def format_assignments(code, sql_keywords):
         # Format the SQL code
         formatted_sql = format_sql_code(sql_code).strip()
 
+        # Remove multiple blank lines
+        formatted_sql = re.sub(r"\n\s*\n", "\n", formatted_sql)
+
         # Wrap the formatted SQL code in triple quotes
         if quote_char.startswith('"'):
             triple_quote_char = '"""'
@@ -173,16 +176,18 @@ def format_assignments(code, sql_keywords):
 
         return new_line
 
-    # Updated regex without capturing opening_paren and closing_paren
+    # Updated regex to handle optional parentheses around the string
     assignment_pattern = re.compile(
         r"""
         (?P<indent>^[ \t]*)                # Indentation at the start of the line
         (?P<var_name>\w+)                  # Variable name
         [ \t]*=[ \t]*                      # Assignment operator
+        (?:\(\s*)?                         # Optional opening parenthesis (non-capturing)
         (?P<quote_prefix>[frbuFRBU]*)      # Optional prefixes (f, r, b, u)
         (?P<quote_char>['"]{3}|['"]{1})    # Opening triple quotes or single quotes
         (?P<sql_code>.*?)                  # SQL code (non-greedy)
         (?P=quote_char)                    # Closing quote(s) matching opening
+        (?:\s*\))?                         # Optional closing parenthesis (non-capturing)
         """,
         re.VERBOSE | re.DOTALL | re.MULTILINE,
     )
@@ -205,6 +210,9 @@ def format_assignments(code, sql_keywords):
 
         # Format the SQL code
         formatted_sql = format_sql_code(sql_code).strip()
+
+        # Remove multiple blank lines
+        formatted_sql = re.sub(r"\n\s*\n", "\n", formatted_sql)
 
         # Wrap the formatted SQL code in triple quotes
         if quote_char.startswith('"'):
@@ -231,7 +239,7 @@ def format_assignments(code, sql_keywords):
 
         return new_line
 
-    # Updated regex without capturing closing_paren
+    # Updated regex to handle optional parentheses around the string
     function_call_pattern = re.compile(
         r"""
         (?P<indent>^[ \t]*)                # Indentation
