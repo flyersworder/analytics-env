@@ -67,9 +67,11 @@ def format_sql_code(sql_code):
 
 def format_sql_in_code_cell(code, sql_keywords):
     """Formats SQL strings assigned to variables, function calls, and SQL magic commands in a code cell."""
+    original_code = code
     changed = False
 
     # Regular expression to match variable assignments with strings (including f-strings)
+    # This pattern handles multi-line strings enclosed in parentheses
     assignment_pattern = re.compile(
         r"""
         (?P<indent>^[ \t]*)                # Indentation at the start of the line
@@ -146,7 +148,21 @@ def format_sql_in_code_cell(code, sql_keywords):
         else:
             triple_quote_char = "'''"
 
-        formatted_sql_wrapped = f"{triple_quote_char}{formatted_sql}{triple_quote_char}"
+        # Check if the original assignment was multi-line (enclosed in parentheses)
+        multi_line_assignment = False
+        if re.search(r"\(\s*$", original_code.split(match.group(0))[0], re.MULTILINE):
+            multi_line_assignment = True
+
+        if multi_line_assignment:
+            # For multi-line assignments, place triple quotes on a new line
+            formatted_sql_wrapped = (
+                f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}"
+            )
+        else:
+            # For single-line assignments, place triple quotes inline
+            formatted_sql_wrapped = (
+                f"{triple_quote_char}{formatted_sql}{triple_quote_char}"
+            )
 
         # Reconstruct the assignment
         new_quote_prefix = quote_prefix.replace("f", "").replace(
@@ -191,7 +207,21 @@ def format_sql_in_code_cell(code, sql_keywords):
         else:
             triple_quote_char = "'''"
 
-        formatted_sql_wrapped = f"{triple_quote_char}{formatted_sql}{triple_quote_char}"
+        # Check if the original function call was multi-line (enclosed in parentheses)
+        multi_line_call = False
+        if re.search(r"\(\s*$", original_code.split(match.group(0))[0], re.MULTILINE):
+            multi_line_call = True
+
+        if multi_line_call:
+            # For multi-line function calls, place triple quotes on a new line
+            formatted_sql_wrapped = (
+                f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}"
+            )
+        else:
+            # For single-line function calls, place triple quotes inline
+            formatted_sql_wrapped = (
+                f"{triple_quote_char}{formatted_sql}{triple_quote_char}"
+            )
 
         # Reconstruct the function call
         new_quote_prefix = quote_prefix.replace("f", "").replace(
@@ -259,27 +289,32 @@ def format_sql_in_code_cell(code, sql_keywords):
         return new_magic
 
     # Replace all variable assignments with formatted SQL
-    formatted_code, num_subs = assignment_pattern.subn(assignment_replacer, code)
+    def replace_assignments(code):
+        return assignment_pattern.sub(assignment_replacer, code)
 
     # Replace all function calls with formatted SQL
-    formatted_code, num_subs_func = function_call_pattern.subn(
-        function_call_replacer, formatted_code
-    )
+    def replace_function_calls(code):
+        return function_call_pattern.sub(function_call_replacer, code)
 
     # Replace all %%sql magic commands with formatted SQL
-    formatted_code, num_subs_magic = cell_magic_pattern.subn(
-        cell_magic_replacer, formatted_code
-    )
+    def replace_cell_magic(code):
+        return cell_magic_pattern.sub(cell_magic_replacer, code)
 
     # Replace all %sql magic commands with formatted SQL
-    formatted_code, num_subs_line_magic = line_magic_pattern.subn(
-        line_magic_replacer, formatted_code
-    )
+    def replace_line_magic(code):
+        return line_magic_pattern.sub(line_magic_replacer, code)
 
-    return (
-        formatted_code,
-        (num_subs + num_subs_func + num_subs_magic + num_subs_line_magic) > 0,
-    )
+    def format_sql_in_code_cell(code, sql_keywords):
+        """Formats SQL strings assigned to variables, function calls, and SQL magic commands in a code cell."""
+        formatted_code = replace_assignments(code)
+        formatted_code = replace_function_calls(formatted_code)
+        formatted_code = replace_cell_magic(formatted_code)
+        formatted_code = replace_line_magic(formatted_code)
+
+        # Determine if any changes were made
+        changes_made = formatted_code != code
+
+        return formatted_code, changes_made
 
 
 def format_sql_in_notebook(notebook_path, sql_keywords):
