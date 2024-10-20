@@ -27,17 +27,20 @@ def load_config(config_path="config.yaml"):
         with open(config_file) as file:
             config = yaml.safe_load(file)
             sql_keywords = set(config.get("sql_keywords", []))
-            return sql_keywords
+            min_keywords = config.get("min_keywords", 2)
+            return sql_keywords, min_keywords
     except yaml.YAMLError as e:
         logger.error(f"Error parsing the configuration file: {e}")
         sys.exit(1)
 
 
-def contains_sql_keywords(sql_code, sql_keywords):
-    """Determines if the given code contains at least two SQL keywords."""
+def contains_sql_keywords(sql_code, sql_keywords, min_keywords=2):
+    """Determines if the given code contains at least min_keywords SQL keywords."""
     upper_sql = sql_code.upper()
+    logger.debug(f"Checking SQL keywords in: {sql_code}")
     # Exclude strings that start with common file path indicators or URLs
     if re.match(r"^\s*(/|[a-zA-Z]:\\|https?://)", sql_code.strip()):
+        logger.debug("Excluded due to starting with a file path or URL.")
         return False
     # Use word boundaries to match whole words
     found_keywords = [
@@ -45,7 +48,8 @@ def contains_sql_keywords(sql_code, sql_keywords):
         for keyword in sql_keywords
         if re.search(r"\b" + re.escape(keyword) + r"\b", upper_sql)
     ]
-    return len(found_keywords) >= 2  # Require at least two keywords
+    logger.debug(f"Found SQL keywords: {found_keywords}")
+    return len(found_keywords) >= min_keywords  # Require at least min_keywords
 
 
 def format_sql_code(sql_code):
@@ -67,7 +71,7 @@ def preprocess_line_continuations(code):
     return re.sub(r"\\\n\s*", "", code)
 
 
-def format_magic_commands(code, sql_keywords):
+def format_magic_commands(code, sql_keywords, min_keywords):
     """
     Formats SQL within magic commands (%%sql and %sql).
     - %%sql: Formats multi-line SQL statements.
@@ -97,7 +101,7 @@ def format_magic_commands(code, sql_keywords):
                 sql_lines.append(next_line)
                 j += 1
             sql_code = "\n".join(sql_lines).strip()
-            if contains_sql_keywords(sql_code, sql_keywords):
+            if contains_sql_keywords(sql_code, sql_keywords, min_keywords):
                 formatted_sql = format_sql_code(sql_code).strip()
                 # Remove multiple blank lines within SQL
                 formatted_sql = re.sub(r"\n\s*\n", "\n", formatted_sql)
@@ -106,31 +110,40 @@ def format_magic_commands(code, sql_keywords):
                 # Skip the SQL lines as they have been processed
                 for k in range(i + 1, j):
                     skip_indices.add(k)
+                logger.debug("Formatted %%sql magic command in cell.")
             else:
                 new_lines.append(line)
+                logger.debug(
+                    "Skipped %%sql magic command as it lacks sufficient SQL keywords."
+                )
         # Handle %sql magic
         elif stripped.startswith("%sql"):
             parts = line.split("%sql", 1)
             if len(parts) == 2:
                 indent, sql_code = parts
                 sql_code = sql_code.strip()
-                if contains_sql_keywords(sql_code, sql_keywords):
+                if contains_sql_keywords(sql_code, sql_keywords, min_keywords):
                     formatted_sql = format_sql_code(sql_code).strip()
                     # For line magic, keep SQL on a single line by joining
                     formatted_sql_single_line = " ".join(formatted_sql.splitlines())
                     new_line = f"{indent}%sql {formatted_sql_single_line}"
                     new_lines.append(new_line)
+                    logger.debug("Formatted %sql line magic command.")
                 else:
                     new_lines.append(line)
+                    logger.debug(
+                        "Skipped %sql line magic command as it lacks sufficient SQL keywords."
+                    )
             else:
                 new_lines.append(line)
+                logger.debug("Skipped malformed %sql line magic command.")
         else:
             new_lines.append(line)
 
     return "\n".join(new_lines)
 
 
-def format_assignments(code, sql_keywords):
+def format_assignments(code, sql_keywords, min_keywords):
     """
     Formats SQL within variable assignments and function calls.
     - Variable Assignments: query = "SELECT ...", including multi-line with parentheses.
@@ -147,7 +160,9 @@ def format_assignments(code, sql_keywords):
         quote_char = match.group("quote_char")
         sql_code = match.group("sql_code")
 
-        if not contains_sql_keywords(sql_code, sql_keywords):
+        logger.debug(f"Processing assignment for variable '{var_name}'.")
+
+        if not contains_sql_keywords(sql_code, sql_keywords, min_keywords):
             logger.debug(
                 f"Skipped formatting for variable '{var_name}' as it lacks sufficient SQL keywords."
             )
@@ -187,16 +202,16 @@ def format_assignments(code, sql_keywords):
 
         return new_line
 
-    # Updated regex to handle optional parentheses around the string
+    # Updated regex to handle optional parentheses around the string and multiple prefixes
     assignment_pattern = re.compile(
         r"""
         (?P<indent>^[ \t]*)                # Indentation at the start of the line
         (?P<var_name>\w+)                  # Variable name
         [ \t]*=[ \t]*                      # Assignment operator
         (?:\(\s*)?                         # Optional opening parenthesis (non-capturing)
-        (?P<quote_prefix>[frbuFRBU]*)      # Optional prefixes (f, r, b, u)
+        (?P<quote_prefix>[frbuFRBU]{0,2})  # Optional prefixes (f, r, b, u) up to two characters
         (?P<quote_char>['"]{3}|['"]{1})    # Opening triple quotes or single quotes
-        (?P<sql_code>(?:\\.|(?!\k<quote_char>).)*) # SQL code with possible escaped quotes
+        (?P<sql_code>(?:\\.|[^'"])*?)      # SQL code with possible escaped quotes
         (?P=quote_char)                    # Closing quote(s) matching opening
         (?:\s*\))?                         # Optional closing parenthesis (non-capturing)
         """,
@@ -213,7 +228,9 @@ def format_assignments(code, sql_keywords):
         quote_char = match.group("quote_char")
         sql_code = match.group("sql_code")
 
-        if not contains_sql_keywords(sql_code, sql_keywords):
+        logger.debug(f"Processing function call '{func_name}'.")
+
+        if not contains_sql_keywords(sql_code, sql_keywords, min_keywords):
             logger.debug(
                 f"Skipped formatting for function '{func_name}' as it lacks sufficient SQL keywords."
             )
@@ -253,15 +270,15 @@ def format_assignments(code, sql_keywords):
 
         return new_line
 
-    # Updated regex to handle optional parentheses around the string
+    # Updated regex to handle optional parentheses around the string and multiple prefixes
     function_call_pattern = re.compile(
         r"""
         (?P<indent>^[ \t]*)                # Indentation
         (?P<func_name>\w+)                  # Function name
         [ \t]*\([ \t]*                      # Opening parenthesis
-        (?P<quote_prefix>[frbuFRBU]*)       # Optional string prefixes
+        (?P<quote_prefix>[frbuFRBU]{0,2})   # Optional string prefixes (f, r, b, u) up to two characters
         (?P<quote_char>['"]{3}|['"]{1})     # Opening triple quotes or single quotes
-        (?P<sql_code>(?:\\.|(?!\k<quote_char>).)*) # SQL code with possible escaped quotes
+        (?P<sql_code>(?:\\.|[^'"])*?)       # SQL code with possible escaped quotes
         (?P=quote_char)                     # Closing quote(s) matching opening
         [ \t]*\)                            # Closing parenthesis
         """,
@@ -278,7 +295,9 @@ def format_assignments(code, sql_keywords):
         quote_char = match.group("quote_char")
         sql_code = match.group("sql_code")
 
-        if not contains_sql_keywords(sql_code, sql_keywords):
+        logger.debug(f"Processing decorator '{decorator_name}'.")
+
+        if not contains_sql_keywords(sql_code, sql_keywords, min_keywords):
             logger.debug(
                 f"Skipped formatting for decorator '{decorator_name}' as it lacks sufficient SQL keywords."
             )
@@ -325,9 +344,9 @@ def format_assignments(code, sql_keywords):
         (?P<indent>^[ \t]*)                # Indentation
         @(?P<decorator_name>\w+)           # Decorator name
         \(
-        (?P<quote_prefix>[frbuFRBU]*)      # Optional string prefixes
+        (?P<quote_prefix>[frbuFRBU]{0,2})  # Optional string prefixes (f, r, b, u) up to two characters
         (?P<quote_char>['"]{3}|['"]{1})    # Opening triple quotes or single quotes
-        (?P<sql_code>(?:\\.|(?!\k<quote_char>).)*) # SQL code with possible escaped quotes
+        (?P<sql_code>(?:\\.|[^'"])*?)      # SQL code with possible escaped quotes
         (?P=quote_char)                    # Closing quote(s) matching opening
         \)
         """,
@@ -345,7 +364,9 @@ def format_assignments(code, sql_keywords):
         sql_code = match.group("sql_code")
         comma = match.group("comma")
 
-        if not contains_sql_keywords(sql_code, sql_keywords):
+        logger.debug(f"Processing dictionary entry for key '{key}'.")
+
+        if not contains_sql_keywords(sql_code, sql_keywords, min_keywords):
             logger.debug(
                 f"Skipped formatting for dictionary key '{key}' as it lacks sufficient SQL keywords."
             )
@@ -389,9 +410,9 @@ def format_assignments(code, sql_keywords):
         r"""
         (?P<indent>^[ \t]*)                # Indentation
         (?P<key>['"]\w+['"])\s*:\s*        # Dictionary key
-        (?P<quote_prefix>[frbuFRBU]*)      # Optional string prefixes
+        (?P<quote_prefix>[frbuFRBU]{0,2})  # Optional string prefixes (f, r, b, u) up to two characters
         (?P<quote_char>['"]{3}|['"]{1})    # Opening triple quotes or single quotes
-        (?P<sql_code>(?:\\.|(?!\k<quote_char>).)*) # SQL code with possible escaped quotes
+        (?P<sql_code>(?:\\.|[^'"])*?)      # SQL code with possible escaped quotes
         (?P=quote_char)                    # Closing quote(s) matching opening
         (?P<comma>,?)                      # Optional comma
         """,
@@ -403,7 +424,7 @@ def format_assignments(code, sql_keywords):
     return code
 
 
-def format_notebook_cell(code, sql_keywords):
+def format_notebook_cell(code, sql_keywords, min_keywords):
     """Formats a single notebook code cell."""
     original_code = code
     logger.debug(f"Original code:\n{original_code}")
@@ -412,11 +433,11 @@ def format_notebook_cell(code, sql_keywords):
     code = preprocess_line_continuations(code)
 
     # Step 1: Format magic commands
-    code = format_magic_commands(code, sql_keywords)
+    code = format_magic_commands(code, sql_keywords, min_keywords)
     logger.debug(f"After formatting magic commands:\n{code}")
 
     # Step 2: Format assignments, function calls, decorators, and dictionaries
-    code = format_assignments(code, sql_keywords)
+    code = format_assignments(code, sql_keywords, min_keywords)
     logger.debug(
         f"After formatting assignments, function calls, decorators, and dictionaries:\n{code}"
     )
@@ -427,7 +448,7 @@ def format_notebook_cell(code, sql_keywords):
     return code, changes_made
 
 
-def format_notebook(notebook_path, sql_keywords):
+def format_notebook(notebook_path, sql_keywords, min_keywords):
     """Processes a Jupyter notebook to format SQL code within it."""
     try:
         nb = nbformat.read(notebook_path, as_version=4)
@@ -443,7 +464,7 @@ def format_notebook(notebook_path, sql_keywords):
 
                 # Format the code cell
                 formatted_code, changed = format_notebook_cell(
-                    original_code, sql_keywords
+                    original_code, sql_keywords, min_keywords
                 )
 
                 if changed:
@@ -509,13 +530,13 @@ def main():
     # Update logging level based on user input
     logger.setLevel(getattr(logging, args.log_level.upper(), logging.INFO))
 
-    # Load SQL keywords from configuration
-    sql_keywords = load_config(args.config)
+    # Load SQL keywords and min_keywords from configuration
+    sql_keywords, min_keywords = load_config(args.config)
 
     any_notebook_changed = False
     for notebook_path in args.notebooks:
         logger.info(f"Processing notebook: {notebook_path}")
-        if format_notebook(notebook_path, sql_keywords):
+        if format_notebook(notebook_path, sql_keywords, min_keywords):
             any_notebook_changed = True
 
     if any_notebook_changed:

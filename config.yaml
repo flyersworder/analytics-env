@@ -33,4 +33,5 @@ function_names:
   - fetchone
   - fetchmany
 
+min_keywords: 2
 # Additional configurations can be added here
