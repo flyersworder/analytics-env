@@ -17,6 +17,7 @@ dependencies = [
     { name = "requests" },
     { name = "seaborn" },
     { name = "sqlfluff" },
+    { name = "sqlparse" },
     { name = "thefuzz" },
 ]
 
@@ -33,6 +34,7 @@ requires-dist = [
     { name = "requests", specifier = ">=2.32.3" },
     { name = "seaborn", specifier = ">=0.13.2" },
     { name = "sqlfluff", specifier = ">=3.2.4" },
+    { name = "sqlparse", specifier = ">=0.5.1" },
     { name = "thefuzz", specifier = ">=0.22.1" },
 ]
 
