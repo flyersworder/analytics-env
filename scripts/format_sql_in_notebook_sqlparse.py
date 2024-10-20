@@ -49,7 +49,7 @@ def contains_sql_keywords(sql_code, sql_keywords):
 
 
 def format_sql_code(sql_code):
-    """Formats the given SQL code using sqlparse with the specified compact configuration."""
+    """Formats the given SQL code using sqlparse with the specified configuration."""
     formatted_sql = sqlparse.format(
         sql_code,
         reindent=True,
@@ -93,7 +93,7 @@ def format_magic_commands(code, sql_keywords):
                 j += 1
             sql_code = "\n".join(sql_lines).strip()
             if contains_sql_keywords(sql_code, sql_keywords):
-                formatted_sql = format_sql_code(sql_code)
+                formatted_sql = format_sql_code(sql_code).strip()
                 # Ensure triple quotes are on separate lines and no extra blank lines
                 formatted_cell = f"{magic_command}\n{formatted_sql}"
                 new_lines.append(formatted_cell)
@@ -109,11 +109,9 @@ def format_magic_commands(code, sql_keywords):
                 indent, sql_code = parts
                 sql_code = sql_code.strip()
                 if contains_sql_keywords(sql_code, sql_keywords):
-                    formatted_sql = format_sql_code(sql_code)
+                    formatted_sql = format_sql_code(sql_code).strip()
                     # For line magic, keep SQL on a single line by joining
-                    formatted_sql_single_line = " ".join(
-                        formatted_sql.strip().splitlines()
-                    )
+                    formatted_sql_single_line = " ".join(formatted_sql.splitlines())
                     new_line = f"{indent}%sql {formatted_sql_single_line}"
                     new_lines.append(new_line)
                 else:
