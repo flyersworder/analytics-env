@@ -57,9 +57,6 @@ def format_sql_code(sql_code):
         identifier_case="lower",
         use_space_around_operators=True,
         comma_first=False,
-        indent_columns=True,
-        wrap_after=1,  # Each column on a new line
-        indent_width=4,
         compact=False,
     )
     return formatted_sql
