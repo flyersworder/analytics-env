@@ -70,14 +70,12 @@ repos:
     hooks:
       - id: format-sql-in-notebook
         name: Format SQL in Notebooks
-        entry: uv run python scripts/format_sql_in_notebook.py
+        entry: uv run python scripts/format_sql_in_notebook_sqlparse.py
         language: system
         types: [jupyter]
         args:
-          - "--dialect"
-          - "ansi"
-          - "--sqlfluff-config"
-          - ".sqlfluff"
+          - "--config"
+          - "config.yaml"
           - "--log-level"
           - "INFO"
         exclude: |
