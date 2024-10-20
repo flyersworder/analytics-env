@@ -38,17 +38,15 @@ def format_sql_code(sql_code):
     """Formats the given SQL code using sqlparse."""
     formatted_sql = sqlparse.format(
         sql_code,
-        keyword_case="upper",  # Uppercase SQL keywords
-        identifier_case=None,  # Keep identifiers as is
-        strip_comments=False,  # Preserve comments
-        reindent=True,  # Enable reindentation
-        reindent_aligned=True,  # Align statements by keywords
-        use_space_around_operators=True,  # Add spaces around operators
-        indent_width=2,  # Indentation width
-        indent_tabs=False,  # Use spaces for indentation
-        wrap_after=80,  # Wrap lists after 80 characters
-        compact=False,  # Do not compact the output
-        comma_first=False,  # Comma after items
+        reindent=True,
+        keyword_case="upper",
+        identifier_case="lower",
+        use_space_around_operators=True,
+        comma_first=False,
+        indent_columns=True,
+        wrap_after=1,  # This will ensure each column is on a new line
+        indent_width=4,
+        compact=True,
     )
     return formatted_sql
 
