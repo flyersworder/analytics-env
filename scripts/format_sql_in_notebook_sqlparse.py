@@ -97,7 +97,7 @@ def format_magic_commands(code, sql_keywords):
             sql_code = "\n".join(sql_lines).strip()
             if contains_sql_keywords(sql_code, sql_keywords):
                 formatted_sql = format_sql_code(sql_code)
-                # Ensure triple quotes are on separate lines
+                # Ensure triple quotes are on separate lines and no extra blank lines
                 formatted_cell = f"{magic_command}\n{formatted_sql}"
                 new_lines.append(formatted_cell)
                 # Skip the SQL lines as they have been processed
@@ -151,7 +151,7 @@ def format_assignments(code, sql_keywords):
         is_f_string = "f" in quote_prefix.lower()
 
         # Format the SQL code
-        formatted_sql = format_sql_code(sql_code)
+        formatted_sql = format_sql_code(sql_code).strip()
 
         # Wrap the formatted SQL code in triple quotes
         if quote_char.startswith('"'):
@@ -159,7 +159,7 @@ def format_assignments(code, sql_keywords):
         else:
             triple_quote_char = "'''"
 
-        # Ensure triple quotes are on separate lines
+        # Ensure triple quotes are on separate lines without extra blank lines
         formatted_sql_wrapped = (
             f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}"
         )
@@ -209,7 +209,7 @@ def format_assignments(code, sql_keywords):
         is_f_string = "f" in quote_prefix.lower()
 
         # Format the SQL code
-        formatted_sql = format_sql_code(sql_code)
+        formatted_sql = format_sql_code(sql_code).strip()
 
         # Wrap the formatted SQL code in triple quotes
         if quote_char.startswith('"'):
@@ -217,7 +217,7 @@ def format_assignments(code, sql_keywords):
         else:
             triple_quote_char = "'''"
 
-        # Ensure triple quotes are on separate lines
+        # Ensure triple quotes are on separate lines without extra blank lines
         formatted_sql_wrapped = (
             f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}"
         )
