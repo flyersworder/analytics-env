@@ -132,7 +132,7 @@ def format_magic_commands(code, sql_keywords):
 def format_assignments(code, sql_keywords):
     """
     Formats SQL within variable assignments and function calls.
-    - Variable Assignments: query = "SELECT ...", including multi-line.
+    - Variable Assignments: query = "SELECT ...", including multi-line with parentheses.
     - Function Calls: execute_query("SELECT ...")
     """
 
@@ -159,22 +159,12 @@ def format_assignments(code, sql_keywords):
         else:
             triple_quote_char = "'''"
 
-        # Check if the original assignment was multi-line (enclosed in parentheses)
-        # We assume that if the assignment line ends with '(', it's multi-line
-        multi_line_assignment = bool(re.search(r"\(\s*$", match.group(0), re.MULTILINE))
+        # Ensure triple quotes are on separate lines
+        formatted_sql_wrapped = (
+            f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}"
+        )
 
-        if multi_line_assignment:
-            # For multi-line assignments, place triple quotes on new lines
-            formatted_sql_wrapped = (
-                f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}"
-            )
-        else:
-            # For single-line assignments, place triple quotes inline
-            formatted_sql_wrapped = (
-                f"{triple_quote_char}{formatted_sql}{triple_quote_char}"
-            )
-
-        # Reconstruct the assignment
+        # Reconstruct the assignment without parentheses
         new_quote_prefix = quote_prefix.replace("f", "").replace(
             "F", ""
         )  # Remove 'f' from prefix
@@ -188,14 +178,15 @@ def format_assignments(code, sql_keywords):
 
         return new_line
 
+    # Updated regex without capturing opening_paren and closing_paren
     assignment_pattern = re.compile(
         r"""
         (?P<indent>^[ \t]*)                # Indentation at the start of the line
         (?P<var_name>\w+)                  # Variable name
         [ \t]*=[ \t]*                      # Assignment operator
         (?P<quote_prefix>[frbuFRBU]*)      # Optional prefixes (f, r, b, u)
-        (?P<quote_char>['"]{1,3})          # Opening quote(s)
-        (?P<sql_code>(?:\\.|(?!\4).)*?)    # SQL code, handling escaped quotes
+        (?P<quote_char>['"]{3}|['"]{1})    # Opening triple quotes or single quotes
+        (?P<sql_code>.*?)                  # SQL code (non-greedy)
         (?P=quote_char)                    # Closing quote(s) matching opening
         """,
         re.VERBOSE | re.DOTALL | re.MULTILINE,
@@ -226,20 +217,10 @@ def format_assignments(code, sql_keywords):
         else:
             triple_quote_char = "'''"
 
-        # Check if the original function call was multi-line (enclosed in parentheses)
-        # We assume that if the function call line ends with '(', it's multi-line
-        multi_line_call = bool(re.search(r"\(\s*$", match.group(0), re.MULTILINE))
-
-        if multi_line_call:
-            # For multi-line function calls, place triple quotes on new lines
-            formatted_sql_wrapped = (
-                f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}"
-            )
-        else:
-            # For single-line function calls, place triple quotes inline
-            formatted_sql_wrapped = (
-                f"{triple_quote_char}{formatted_sql}{triple_quote_char}"
-            )
+        # Ensure triple quotes are on separate lines
+        formatted_sql_wrapped = (
+            f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}"
+        )
 
         # Reconstruct the function call
         new_quote_prefix = quote_prefix.replace("f", "").replace(
@@ -255,14 +236,15 @@ def format_assignments(code, sql_keywords):
 
         return new_line
 
+    # Updated regex without capturing closing_paren
     function_call_pattern = re.compile(
         r"""
         (?P<indent>^[ \t]*)                # Indentation
         (?P<func_name>\w+)                  # Function name
         [ \t]*\([ \t]*                      # Opening parenthesis
         (?P<quote_prefix>[frbuFRBU]*)       # Optional string prefixes
-        (?P<quote_char>['"]{1,3})           # Opening quote(s)
-        (?P<sql_code>(?:\\.|(?!\4).)*?)     # SQL code
+        (?P<quote_char>['"]{3}|['"]{1})     # Opening triple quotes or single quotes
+        (?P<sql_code>.*?)                   # SQL code
         (?P=quote_char)                     # Closing quote(s) matching opening
         [ \t]*\)                            # Closing parenthesis
         """,
