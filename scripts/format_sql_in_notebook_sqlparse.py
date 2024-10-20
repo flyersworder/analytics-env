@@ -10,7 +10,7 @@ from pathlib import Path
 
 # Set up logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)  # Set default logging level to DEBUG
+logger.setLevel(logging.DEBUG)  # Default logging level
 handler = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter("[%(levelname)s] %(message)s")
 handler.setFormatter(formatter)
@@ -65,182 +65,15 @@ def format_sql_code(sql_code):
     return formatted_sql
 
 
-def format_sql_in_code_cell(code, sql_keywords):
-    """Formats SQL strings assigned to variables, function calls, and SQL magic commands in a code cell."""
-    original_code = code
-    changed = False
+def format_magic_commands(code, sql_keywords):
+    """
+    Formats SQL within magic commands (%%sql and %sql).
+    - %%sql: Formats multi-line SQL statements.
+    - %sql: Formats single-line SQL statements.
+    """
 
-    # Regular expression to match variable assignments with strings (including f-strings)
-    # This pattern handles multi-line strings enclosed in parentheses
-    assignment_pattern = re.compile(
-        r"""
-        (?P<indent>^[ \t]*)                # Indentation at the start of the line
-        (?P<var_name>\w+)                  # Variable name
-        [ \t]*=[ \t]*                      # Assignment operator
-        (?P<quote_prefix>[frbuFRBU]*)      # Optional prefixes (f, r, b, u)
-        (?P<quote_char>['"]{1,3})          # Opening quote(s)
-        (?P<sql_code>(?:\\.|(?!\3).)*?)    # SQL code, handling escaped quotes
-        (?P=quote_char)                    # Closing quote(s) matching opening
-        """,
-        re.VERBOSE | re.DOTALL | re.MULTILINE,
-    )
-
-    # Regular expression to match function calls with SQL string arguments
-    function_call_pattern = re.compile(
-        r"""
-        (?P<indent>^[ \t]*)                # Indentation
-        (?P<func_name>\w+)                  # Function name
-        [ \t]*\([ \t]*                      # Opening parenthesis
-        (?P<quote_prefix>[frbuFRBU]*)       # Optional string prefixes
-        (?P<quote_char>['"]{1,3})           # Opening quote(s)
-        (?P<sql_code>(?:\\.|(?!\4).)*?)     # SQL code
-        (?P=quote_char)                     # Closing quote(s) matching opening
-        [ \t]*\)                            # Closing parenthesis
-        """,
-        re.VERBOSE | re.DOTALL | re.MULTILINE,
-    )
-
-    # Regular expression to match %%sql (cell magic)
-    cell_magic_pattern = re.compile(
-        r"""
-        ^(?P<magic>%%sql\b.*\n)            # %%sql magic command
-        (?P<sql>(?:.*\n)*?)                # SQL code (non-greedy)
-        (?=^[ \t]*\S|\Z)                    # Lookahead for non-indented line or end of string
-        """,
-        re.VERBOSE | re.MULTILINE,
-    )
-
-    # Regular expression to match %sql (line magic)
-    line_magic_pattern = re.compile(
-        r"""
-        ^(?P<indent>^[ \t]*)                # Indentation
-        %(?P<magic>sql)\b[ \t]+             # %sql magic command
-        (?P<sql>.+)                         # SQL code
-        """,
-        re.VERBOSE | re.MULTILINE,
-    )
-
-    def assignment_replacer(match):
-        nonlocal changed
-        indent = match.group("indent")
-        var_name = match.group("var_name")
-        quote_prefix = match.group("quote_prefix")
-        quote_char = match.group("quote_char")
-        sql_code = match.group("sql_code")
-
-        # Check if the string contains SQL keywords
-        if not contains_sql_keywords(sql_code, sql_keywords):
-            return match.group(0)  # Return the original string
-
-        # Handle f-strings: preserve placeholders
-        is_f_string = "f" in quote_prefix.lower()
-        if is_f_string:
-            # No placeholder replacement; assume sqlparse can handle placeholders
-            formatted_sql = format_sql_code(sql_code)
-        else:
-            # Not an f-string, format directly
-            formatted_sql = format_sql_code(sql_code)
-
-        # Wrap the formatted SQL code in triple quotes
-        # Determine the appropriate triple quote style based on original quote
-        if quote_char.startswith('"'):
-            triple_quote_char = '"""'
-        else:
-            triple_quote_char = "'''"
-
-        # Check if the original assignment was multi-line (enclosed in parentheses)
-        multi_line_assignment = False
-        if re.search(r"\(\s*$", original_code.split(match.group(0))[0], re.MULTILINE):
-            multi_line_assignment = True
-
-        if multi_line_assignment:
-            # For multi-line assignments, place triple quotes on a new line
-            formatted_sql_wrapped = (
-                f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}"
-            )
-        else:
-            # For single-line assignments, place triple quotes inline
-            formatted_sql_wrapped = (
-                f"{triple_quote_char}{formatted_sql}{triple_quote_char}"
-            )
-
-        # Reconstruct the assignment
-        new_quote_prefix = quote_prefix.replace("f", "").replace(
-            "F", ""
-        )  # Remove 'f' from prefix
-        if is_f_string:
-            new_quote_prefix = "f" + new_quote_prefix
-        new_line = f"{indent}{var_name} = {new_quote_prefix}{formatted_sql_wrapped}"
-
-        # Log the change
-        logger.debug(f"Formatting assignment for variable '{var_name}'.")
-        logger.debug(f"Original SQL:\n{sql_code}")
-        logger.debug(f"Formatted SQL:\n{formatted_sql}")
-
-        changed = True
-        return new_line
-
-    def function_call_replacer(match):
-        nonlocal changed
-        indent = match.group("indent")
-        func_name = match.group("func_name")
-        quote_prefix = match.group("quote_prefix")
-        quote_char = match.group("quote_char")
-        sql_code = match.group("sql_code")
-
-        # Check if the string contains SQL keywords
-        if not contains_sql_keywords(sql_code, sql_keywords):
-            return match.group(0)  # Return the original string
-
-        # Handle f-strings: preserve placeholders
-        is_f_string = "f" in quote_prefix.lower()
-        if is_f_string:
-            # No placeholder replacement; assume sqlparse can handle placeholders
-            formatted_sql = format_sql_code(sql_code)
-        else:
-            # Not an f-string, format directly
-            formatted_sql = format_sql_code(sql_code)
-
-        # Wrap the formatted SQL code in triple quotes
-        if quote_char.startswith('"'):
-            triple_quote_char = '"""'
-        else:
-            triple_quote_char = "'''"
-
-        # Check if the original function call was multi-line (enclosed in parentheses)
-        multi_line_call = False
-        if re.search(r"\(\s*$", original_code.split(match.group(0))[0], re.MULTILINE):
-            multi_line_call = True
-
-        if multi_line_call:
-            # For multi-line function calls, place triple quotes on a new line
-            formatted_sql_wrapped = (
-                f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}"
-            )
-        else:
-            # For single-line function calls, place triple quotes inline
-            formatted_sql_wrapped = (
-                f"{triple_quote_char}{formatted_sql}{triple_quote_char}"
-            )
-
-        # Reconstruct the function call
-        new_quote_prefix = quote_prefix.replace("f", "").replace(
-            "F", ""
-        )  # Remove 'f' from prefix
-        if is_f_string:
-            new_quote_prefix = "f" + new_quote_prefix
-        new_line = f"{indent}{func_name}({new_quote_prefix}{formatted_sql_wrapped})"
-
-        # Log the change
-        logger.debug(f"Formatting function call '{func_name}'.")
-        logger.debug(f"Original SQL:\n{sql_code}")
-        logger.debug(f"Formatted SQL:\n{formatted_sql}")
-
-        changed = True
-        return new_line
-
+    # Handle %%sql (cell magic)
     def cell_magic_replacer(match):
-        nonlocal changed
         magic = match.group("magic")
         sql_code = match.group("sql")
 
@@ -260,11 +93,21 @@ def format_sql_in_code_cell(code, sql_keywords):
         logger.debug(f"Original SQL:\n{sql_code}")
         logger.debug(f"Formatted SQL:\n{formatted_sql}")
 
-        changed = True
         return new_magic
 
+    cell_magic_pattern = re.compile(
+        r"""
+        ^(?P<magic>%%sql\b.*\n)            # %%sql magic command
+        (?P<sql>(?:.|\n)*?)                # SQL code (non-greedy)
+        (?=^[ \t]*\S|\Z)                    # Lookahead for non-indented line or end of string
+        """,
+        re.VERBOSE | re.MULTILINE,
+    )
+
+    code = cell_magic_pattern.sub(cell_magic_replacer, code)
+
+    # Handle %sql (line magic)
     def line_magic_replacer(match):
-        nonlocal changed
         indent = match.group("indent")
         magic = match.group("magic")
         sql_code = match.group("sql")
@@ -275,49 +118,197 @@ def format_sql_in_code_cell(code, sql_keywords):
         # Format the SQL code
         formatted_sql = format_sql_code(sql_code)
 
-        # Remove leading whitespace from each line and join into a single line
-        formatted_sql = " ".join(line.lstrip() for line in formatted_sql.split("\n"))
+        # For line magic, keep SQL on a single line by joining
+        formatted_sql_single_line = " ".join(
+            line.strip() for line in formatted_sql.split("\n")
+        )
 
         # Reconstruct the magic command
-        new_magic = f"{indent}%{magic} {formatted_sql.strip()}"
+        new_magic = f"{indent}%{magic} {formatted_sql_single_line}"
 
         logger.debug("Formatting %sql magic command.")
         logger.debug(f"Original SQL: {sql_code}")
-        logger.debug(f"Formatted SQL: {formatted_sql}")
+        logger.debug(f"Formatted SQL: {formatted_sql_single_line}")
 
-        changed = True
         return new_magic
 
-    # Replace all variable assignments with formatted SQL
-    def replace_assignments(code):
-        return assignment_pattern.sub(assignment_replacer, code)
+    line_magic_pattern = re.compile(
+        r"""
+        ^(?P<indent>^[ \t]*)                # Indentation
+        %(?P<magic>sql)\b[ \t]+             # %sql magic command
+        (?P<sql>.+)                         # SQL code
+        """,
+        re.VERBOSE | re.MULTILINE,
+    )
 
-    # Replace all function calls with formatted SQL
-    def replace_function_calls(code):
-        return function_call_pattern.sub(function_call_replacer, code)
+    code = line_magic_pattern.sub(line_magic_replacer, code)
 
-    # Replace all %%sql magic commands with formatted SQL
-    def replace_cell_magic(code):
-        return cell_magic_pattern.sub(cell_magic_replacer, code)
-
-    # Replace all %sql magic commands with formatted SQL
-    def replace_line_magic(code):
-        return line_magic_pattern.sub(line_magic_replacer, code)
-
-    def format_sql_in_code_cell(code, sql_keywords):
-        """Formats SQL strings assigned to variables, function calls, and SQL magic commands in a code cell."""
-        formatted_code = replace_assignments(code)
-        formatted_code = replace_function_calls(formatted_code)
-        formatted_code = replace_cell_magic(formatted_code)
-        formatted_code = replace_line_magic(formatted_code)
-
-        # Determine if any changes were made
-        changes_made = formatted_code != code
-
-        return formatted_code, changes_made
+    return code
 
 
-def format_sql_in_notebook(notebook_path, sql_keywords):
+def format_assignments(code, sql_keywords):
+    """
+    Formats SQL within variable assignments and function calls.
+    - Variable Assignments: query = "SELECT ...", including multi-line.
+    - Function Calls: execute_query("SELECT ...")
+    """
+
+    # Handle variable assignments
+    def assignment_replacer(match):
+        indent = match.group("indent")
+        var_name = match.group("var_name")
+        quote_prefix = match.group("quote_prefix")
+        quote_char = match.group("quote_char")
+        sql_code = match.group("sql_code")
+
+        if not contains_sql_keywords(sql_code, sql_keywords):
+            return match.group(0)  # Return original
+
+        # Determine if it's an f-string
+        is_f_string = "f" in quote_prefix.lower()
+
+        # Format the SQL code
+        formatted_sql = format_sql_code(sql_code)
+
+        # Wrap the formatted SQL code in triple quotes
+        if quote_char.startswith('"'):
+            triple_quote_char = '"""'
+        else:
+            triple_quote_char = "'''"
+
+        # Check if the original assignment was multi-line (enclosed in parentheses)
+        multi_line_assignment = bool(re.search(r"\(\s*$", match.group(0), re.MULTILINE))
+
+        if multi_line_assignment:
+            # For multi-line assignments, place triple quotes on new lines
+            formatted_sql_wrapped = (
+                f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}"
+            )
+        else:
+            # For single-line assignments, place triple quotes inline
+            formatted_sql_wrapped = (
+                f"{triple_quote_char}{formatted_sql}{triple_quote_char}"
+            )
+
+        # Reconstruct the assignment
+        new_quote_prefix = quote_prefix.replace("f", "").replace(
+            "F", ""
+        )  # Remove 'f' from prefix
+        if is_f_string:
+            new_quote_prefix = "f" + new_quote_prefix
+        new_line = f"{indent}{var_name} = {new_quote_prefix}{formatted_sql_wrapped}"
+
+        logger.debug(f"Formatting assignment for variable '{var_name}'.")
+        logger.debug(f"Original SQL:\n{sql_code}")
+        logger.debug(f"Formatted SQL:\n{formatted_sql}")
+
+        return new_line
+
+    assignment_pattern = re.compile(
+        r"""
+        (?P<indent>^[ \t]*)                # Indentation at the start of the line
+        (?P<var_name>\w+)                  # Variable name
+        [ \t]*=[ \t]*                      # Assignment operator
+        (?P<quote_prefix>[frbuFRBU]*)      # Optional prefixes (f, r, b, u)
+        (?P<quote_char>['"]{1,3})          # Opening quote(s)
+        (?P<sql_code>(?:\\.|(?!\4).)*?)    # SQL code, handling escaped quotes
+        (?P=quote_char)                    # Closing quote(s) matching opening
+        """,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
+    )
+
+    code = assignment_pattern.sub(assignment_replacer, code)
+
+    # Handle function calls with SQL string arguments
+    def function_call_replacer(match):
+        indent = match.group("indent")
+        func_name = match.group("func_name")
+        quote_prefix = match.group("quote_prefix")
+        quote_char = match.group("quote_char")
+        sql_code = match.group("sql_code")
+
+        if not contains_sql_keywords(sql_code, sql_keywords):
+            return match.group(0)  # Return original
+
+        # Determine if it's an f-string
+        is_f_string = "f" in quote_prefix.lower()
+
+        # Format the SQL code
+        formatted_sql = format_sql_code(sql_code)
+
+        # Wrap the formatted SQL code in triple quotes
+        if quote_char.startswith('"'):
+            triple_quote_char = '"""'
+        else:
+            triple_quote_char = "'''"
+
+        # Check if the original function call was multi-line (enclosed in parentheses)
+        multi_line_call = bool(re.search(r"\(\s*$", match.group(0), re.MULTILINE))
+
+        if multi_line_call:
+            # For multi-line function calls, place triple quotes on new lines
+            formatted_sql_wrapped = (
+                f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}"
+            )
+        else:
+            # For single-line function calls, place triple quotes inline
+            formatted_sql_wrapped = (
+                f"{triple_quote_char}{formatted_sql}{triple_quote_char}"
+            )
+
+        # Reconstruct the function call
+        new_quote_prefix = quote_prefix.replace("f", "").replace(
+            "F", ""
+        )  # Remove 'f' from prefix
+        if is_f_string:
+            new_quote_prefix = "f" + new_quote_prefix
+        new_line = f"{indent}{func_name}({new_quote_prefix}{formatted_sql_wrapped})"
+
+        logger.debug(f"Formatting function call '{func_name}'.")
+        logger.debug(f"Original SQL:\n{sql_code}")
+        logger.debug(f"Formatted SQL:\n{formatted_sql}")
+
+        return new_line
+
+    function_call_pattern = re.compile(
+        r"""
+        (?P<indent>^[ \t]*)                # Indentation
+        (?P<func_name>\w+)                  # Function name
+        [ \t]*\([ \t]*                      # Opening parenthesis
+        (?P<quote_prefix>[frbuFRBU]*)       # Optional string prefixes
+        (?P<quote_char>['"]{1,3})           # Opening quote(s)
+        (?P<sql_code>(?:\\.|(?!\4).)*?)     # SQL code
+        (?P=quote_char)                     # Closing quote(s) matching opening
+        [ \t]*\)                            # Closing parenthesis
+        """,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
+    )
+
+    code = function_call_pattern.sub(function_call_replacer, code)
+
+    return code
+
+
+def format_notebook_cell(code, sql_keywords):
+    """Formats a single notebook code cell."""
+    original_code = code
+    logger.debug(f"Original code:\n{original_code}")
+
+    # Step 1: Format magic commands
+    code = format_magic_commands(code, sql_keywords)
+    logger.debug(f"After formatting magic commands:\n{code}")
+
+    # Step 2: Format variable assignments and function calls
+    code = format_assignments(code, sql_keywords)
+    logger.debug(f"After formatting assignments and function calls:\n{code}")
+
+    # Determine if any changes were made
+    changes_made = code != original_code
+
+    return code, changes_made
+
+
+def format_notebook(notebook_path, sql_keywords):
     """Processes a Jupyter notebook to format SQL code within it."""
     try:
         nb = nbformat.read(notebook_path, as_version=4)
@@ -328,8 +319,8 @@ def format_sql_in_notebook(notebook_path, sql_keywords):
                 original_code = cell.source
                 logger.debug(f"Processing cell {idx + 1}:\n{original_code}")
 
-                # Format SQL in the code cell
-                formatted_code, changed = format_sql_in_code_cell(
+                # Format the code cell
+                formatted_code, changed = format_notebook_cell(
                     original_code, sql_keywords
                 )
 
@@ -400,7 +391,7 @@ def main():
     any_notebook_changed = False
     for notebook_path in args.notebooks:
         logger.info(f"Processing notebook: {notebook_path}")
-        if format_sql_in_notebook(notebook_path, sql_keywords):
+        if format_notebook(notebook_path, sql_keywords):
             any_notebook_changed = True
 
     if any_notebook_changed:
