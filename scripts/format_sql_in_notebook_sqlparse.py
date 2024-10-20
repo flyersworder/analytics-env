@@ -46,7 +46,7 @@ def format_sql_code(sql_code):
         indent_columns=True,
         wrap_after=1,  # This will ensure each column is on a new line
         indent_width=4,
-        compact=True,
+        compact=False,
     )
     return formatted_sql
 
