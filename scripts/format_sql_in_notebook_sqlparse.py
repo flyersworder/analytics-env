@@ -62,6 +62,11 @@ def format_sql_code(sql_code):
     return formatted_sql
 
 
+def preprocess_line_continuations(code):
+    """Concatenates lines that are split using backslashes."""
+    return re.sub(r"\\\n\s*", "", code)
+
+
 def format_magic_commands(code, sql_keywords):
     """
     Formats SQL within magic commands (%%sql and %sql).
@@ -94,7 +99,8 @@ def format_magic_commands(code, sql_keywords):
             sql_code = "\n".join(sql_lines).strip()
             if contains_sql_keywords(sql_code, sql_keywords):
                 formatted_sql = format_sql_code(sql_code).strip()
-                # Ensure triple quotes are on separate lines and no extra blank lines
+                # Remove multiple blank lines within SQL
+                formatted_sql = re.sub(r"\n\s*\n", "\n", formatted_sql)
                 formatted_cell = f"{magic_command}\n{formatted_sql}"
                 new_lines.append(formatted_cell)
                 # Skip the SQL lines as they have been processed
@@ -129,6 +135,8 @@ def format_assignments(code, sql_keywords):
     Formats SQL within variable assignments and function calls.
     - Variable Assignments: query = "SELECT ...", including multi-line with parentheses.
     - Function Calls: execute_query("SELECT ...")
+    - Decorators: @sql_decorator("SELECT ...")
+    - Dictionaries: queries = {"get_users": "SELECT ..."}
     """
 
     # Handle variable assignments
@@ -140,6 +148,9 @@ def format_assignments(code, sql_keywords):
         sql_code = match.group("sql_code")
 
         if not contains_sql_keywords(sql_code, sql_keywords):
+            logger.debug(
+                f"Skipped formatting for variable '{var_name}' as it lacks sufficient SQL keywords."
+            )
             return match.group(0)  # Return original
 
         # Determine if it's an f-string
@@ -163,14 +174,14 @@ def format_assignments(code, sql_keywords):
         )
 
         # Reconstruct the assignment without parentheses
-        new_quote_prefix = quote_prefix.replace("f", "").replace(
-            "F", ""
+        new_quote_prefix = "".join(
+            [c for c in quote_prefix if c.lower() != "f"]
         )  # Remove 'f' from prefix
         if is_f_string:
             new_quote_prefix = "f" + new_quote_prefix
         new_line = f"{indent}{var_name} = {new_quote_prefix}{formatted_sql_wrapped}"
 
-        logger.debug(f"Formatting assignment for variable '{var_name}'.")
+        logger.info(f"Formatted SQL for variable '{var_name}'.")
         logger.debug(f"Original SQL:\n{sql_code}")
         logger.debug(f"Formatted SQL:\n{formatted_sql}")
 
@@ -185,7 +196,7 @@ def format_assignments(code, sql_keywords):
         (?:\(\s*)?                         # Optional opening parenthesis (non-capturing)
         (?P<quote_prefix>[frbuFRBU]*)      # Optional prefixes (f, r, b, u)
         (?P<quote_char>['"]{3}|['"]{1})    # Opening triple quotes or single quotes
-        (?P<sql_code>.*?)                  # SQL code (non-greedy)
+        (?P<sql_code>(?:\\.|(?!\k<quote_char>).)*) # SQL code with possible escaped quotes
         (?P=quote_char)                    # Closing quote(s) matching opening
         (?:\s*\))?                         # Optional closing parenthesis (non-capturing)
         """,
@@ -203,6 +214,9 @@ def format_assignments(code, sql_keywords):
         sql_code = match.group("sql_code")
 
         if not contains_sql_keywords(sql_code, sql_keywords):
+            logger.debug(
+                f"Skipped formatting for function '{func_name}' as it lacks sufficient SQL keywords."
+            )
             return match.group(0)  # Return original
 
         # Determine if it's an f-string
@@ -226,14 +240,14 @@ def format_assignments(code, sql_keywords):
         )
 
         # Reconstruct the function call
-        new_quote_prefix = quote_prefix.replace("f", "").replace(
-            "F", ""
+        new_quote_prefix = "".join(
+            [c for c in quote_prefix if c.lower() != "f"]
         )  # Remove 'f' from prefix
         if is_f_string:
             new_quote_prefix = "f" + new_quote_prefix
         new_line = f"{indent}{func_name}({new_quote_prefix}{formatted_sql_wrapped})"
 
-        logger.debug(f"Formatting function call '{func_name}'.")
+        logger.info(f"Formatted SQL for function '{func_name}'.")
         logger.debug(f"Original SQL:\n{sql_code}")
         logger.debug(f"Formatted SQL:\n{formatted_sql}")
 
@@ -247,7 +261,7 @@ def format_assignments(code, sql_keywords):
         [ \t]*\([ \t]*                      # Opening parenthesis
         (?P<quote_prefix>[frbuFRBU]*)       # Optional string prefixes
         (?P<quote_char>['"]{3}|['"]{1})     # Opening triple quotes or single quotes
-        (?P<sql_code>.*?)                   # SQL code
+        (?P<sql_code>(?:\\.|(?!\k<quote_char>).)*) # SQL code with possible escaped quotes
         (?P=quote_char)                     # Closing quote(s) matching opening
         [ \t]*\)                            # Closing parenthesis
         """,
@@ -255,6 +269,136 @@ def format_assignments(code, sql_keywords):
     )
 
     code = function_call_pattern.sub(function_call_replacer, code)
+
+    # Handle decorators with SQL strings
+    def decorator_replacer(match):
+        indent = match.group("indent")
+        decorator_name = match.group("decorator_name")
+        quote_prefix = match.group("quote_prefix")
+        quote_char = match.group("quote_char")
+        sql_code = match.group("sql_code")
+
+        if not contains_sql_keywords(sql_code, sql_keywords):
+            logger.debug(
+                f"Skipped formatting for decorator '{decorator_name}' as it lacks sufficient SQL keywords."
+            )
+            return match.group(0)  # Return original
+
+        # Determine if it's an f-string
+        is_f_string = "f" in quote_prefix.lower()
+
+        # Format the SQL code
+        formatted_sql = format_sql_code(sql_code).strip()
+
+        # Remove multiple blank lines
+        formatted_sql = re.sub(r"\n\s*\n", "\n", formatted_sql)
+
+        # Wrap the formatted SQL code in triple quotes
+        if quote_char.startswith('"'):
+            triple_quote_char = '"""'
+        else:
+            triple_quote_char = "'''"
+
+        # Ensure triple quotes are on separate lines without extra blank lines
+        formatted_sql_wrapped = (
+            f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}"
+        )
+
+        # Reconstruct the decorator
+        new_quote_prefix = "".join(
+            [c for c in quote_prefix if c.lower() != "f"]
+        )  # Remove 'f' from prefix
+        if is_f_string:
+            new_quote_prefix = "f" + new_quote_prefix
+        new_decorator = (
+            f"{indent}@{decorator_name}({new_quote_prefix}{formatted_sql_wrapped})"
+        )
+
+        logger.info(f"Formatted SQL for decorator '{decorator_name}'.")
+        logger.debug(f"Original SQL:\n{sql_code}")
+        logger.debug(f"Formatted SQL:\n{formatted_sql}")
+
+        return new_decorator
+
+    decorator_pattern = re.compile(
+        r"""
+        (?P<indent>^[ \t]*)                # Indentation
+        @(?P<decorator_name>\w+)           # Decorator name
+        \(
+        (?P<quote_prefix>[frbuFRBU]*)      # Optional string prefixes
+        (?P<quote_char>['"]{3}|['"]{1})    # Opening triple quotes or single quotes
+        (?P<sql_code>(?:\\.|(?!\k<quote_char>).)*) # SQL code with possible escaped quotes
+        (?P=quote_char)                    # Closing quote(s) matching opening
+        \)
+        """,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
+    )
+
+    code = decorator_pattern.sub(decorator_replacer, code)
+
+    # Handle dictionaries with SQL strings
+    def dict_replacer(match):
+        indent = match.group("indent")
+        key = match.group("key")
+        quote_prefix = match.group("quote_prefix")
+        quote_char = match.group("quote_char")
+        sql_code = match.group("sql_code")
+        comma = match.group("comma")
+
+        if not contains_sql_keywords(sql_code, sql_keywords):
+            logger.debug(
+                f"Skipped formatting for dictionary key '{key}' as it lacks sufficient SQL keywords."
+            )
+            return match.group(0)  # Return original
+
+        # Determine if it's an f-string
+        is_f_string = "f" in quote_prefix.lower()
+
+        # Format the SQL code
+        formatted_sql = format_sql_code(sql_code).strip()
+
+        # Remove multiple blank lines
+        formatted_sql = re.sub(r"\n\s*\n", "\n", formatted_sql)
+
+        # Wrap the formatted SQL code in triple quotes
+        if quote_char.startswith('"'):
+            triple_quote_char = '"""'
+        else:
+            triple_quote_char = "'''"
+
+        # Ensure triple quotes are on separate lines without extra blank lines
+        formatted_sql_wrapped = (
+            f"{triple_quote_char}\n{formatted_sql}\n{triple_quote_char}{comma}"
+        )
+
+        # Reconstruct the dictionary entry
+        new_quote_prefix = "".join(
+            [c for c in quote_prefix if c.lower() != "f"]
+        )  # Remove 'f' from prefix
+        if is_f_string:
+            new_quote_prefix = "f" + new_quote_prefix
+        new_entry = f"{indent}{key}: {new_quote_prefix}{formatted_sql_wrapped}"
+
+        logger.info(f"Formatted SQL for dictionary key '{key}'.")
+        logger.debug(f"Original SQL:\n{sql_code}")
+        logger.debug(f"Formatted SQL:\n{formatted_sql}")
+
+        return new_entry
+
+    dict_pattern = re.compile(
+        r"""
+        (?P<indent>^[ \t]*)                # Indentation
+        (?P<key>['"]\w+['"])\s*:\s*        # Dictionary key
+        (?P<quote_prefix>[frbuFRBU]*)      # Optional string prefixes
+        (?P<quote_char>['"]{3}|['"]{1})    # Opening triple quotes or single quotes
+        (?P<sql_code>(?:\\.|(?!\k<quote_char>).)*) # SQL code with possible escaped quotes
+        (?P=quote_char)                    # Closing quote(s) matching opening
+        (?P<comma>,?)                      # Optional comma
+        """,
+        re.VERBOSE | re.DOTALL | re.MULTILINE,
+    )
+
+    code = dict_pattern.sub(dict_replacer, code)
 
     return code
 
@@ -264,13 +408,18 @@ def format_notebook_cell(code, sql_keywords):
     original_code = code
     logger.debug(f"Original code:\n{original_code}")
 
+    # Preprocess line continuations
+    code = preprocess_line_continuations(code)
+
     # Step 1: Format magic commands
     code = format_magic_commands(code, sql_keywords)
     logger.debug(f"After formatting magic commands:\n{code}")
 
-    # Step 2: Format variable assignments and function calls
+    # Step 2: Format assignments, function calls, decorators, and dictionaries
     code = format_assignments(code, sql_keywords)
-    logger.debug(f"After formatting assignments and function calls:\n{code}")
+    logger.debug(
+        f"After formatting assignments, function calls, decorators, and dictionaries:\n{code}"
+    )
 
     # Determine if any changes were made
     changes_made = code != original_code
@@ -285,7 +434,10 @@ def format_notebook(notebook_path, sql_keywords):
         notebook_changed = False
 
         for idx, cell in enumerate(nb.cells):
-            if cell.cell_type == "code":
+            if (
+                cell.cell_type == "code"
+                and cell.metadata.get("language", "python") == "python"
+            ):
                 original_code = cell.source
                 logger.debug(f"Processing cell {idx + 1}:\n{original_code}")
 
@@ -313,6 +465,8 @@ def format_notebook(notebook_path, sql_keywords):
                     notebook_changed = True
                 else:
                     logger.debug(f"No changes detected in cell {idx + 1}.")
+            else:
+                logger.debug(f"Skipping non-Python or non-code cell {idx + 1}.")
 
         if notebook_changed:
             nbformat.write(nb, notebook_path)
