@@ -73,11 +73,10 @@ def format_magic_commands(code, sql_keywords):
     """
     lines = code.split("\n")
     new_lines = []
-    skip_next = False
+    skip_indices = set()
 
     for i, line in enumerate(lines):
-        if skip_next:
-            skip_next = False
+        if i in skip_indices:
             continue
 
         stripped = line.strip()
@@ -86,28 +85,31 @@ def format_magic_commands(code, sql_keywords):
         if stripped.startswith("%%sql"):
             magic_command = stripped
             sql_lines = []
-            # Collect all lines after %%sql until the end of the cell
-            for sql_line in lines[i + 1 :]:
-                if sql_line.strip().startswith("%%") or sql_line.strip().startswith(
+            j = i + 1
+            while j < len(lines):
+                next_line = lines[j]
+                if next_line.strip().startswith("%%") or next_line.strip().startswith(
                     "%"
                 ):
-                    # Another magic command starts; stop collecting
                     break
-                sql_lines.append(sql_line)
+                sql_lines.append(next_line)
+                j += 1
             sql_code = "\n".join(sql_lines).strip()
             if contains_sql_keywords(sql_code, sql_keywords):
                 formatted_sql = format_sql_code(sql_code)
+                # Ensure triple quotes are on separate lines
                 formatted_cell = f"{magic_command}\n{formatted_sql}"
                 new_lines.append(formatted_cell)
                 # Skip the SQL lines as they have been processed
-                skip_next = True
+                for k in range(i + 1, j):
+                    skip_indices.add(k)
             else:
                 new_lines.append(line)
         # Handle %sql magic
         elif stripped.startswith("%sql"):
             parts = line.split("%sql", 1)
             if len(parts) == 2:
-                magic, sql_code = parts
+                indent, sql_code = parts
                 sql_code = sql_code.strip()
                 if contains_sql_keywords(sql_code, sql_keywords):
                     formatted_sql = format_sql_code(sql_code)
@@ -115,7 +117,7 @@ def format_magic_commands(code, sql_keywords):
                     formatted_sql_single_line = " ".join(
                         formatted_sql.strip().splitlines()
                     )
-                    new_line = f"{magic}%sql {formatted_sql_single_line}"
+                    new_line = f"{indent}%sql {formatted_sql_single_line}"
                     new_lines.append(new_line)
                 else:
                     new_lines.append(line)
@@ -158,6 +160,7 @@ def format_assignments(code, sql_keywords):
             triple_quote_char = "'''"
 
         # Check if the original assignment was multi-line (enclosed in parentheses)
+        # We assume that if the assignment line ends with '(', it's multi-line
         multi_line_assignment = bool(re.search(r"\(\s*$", match.group(0), re.MULTILINE))
 
         if multi_line_assignment:
@@ -224,6 +227,7 @@ def format_assignments(code, sql_keywords):
             triple_quote_char = "'''"
 
         # Check if the original function call was multi-line (enclosed in parentheses)
+        # We assume that if the function call line ends with '(', it's multi-line
         multi_line_call = bool(re.search(r"\(\s*$", match.group(0), re.MULTILINE))
 
         if multi_line_call:
