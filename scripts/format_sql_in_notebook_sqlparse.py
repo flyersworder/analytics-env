@@ -49,7 +49,7 @@ def contains_sql_keywords(sql_code, sql_keywords):
 
 
 def format_sql_code(sql_code):
-    """Formats the given SQL code using sqlparse with the specified configuration."""
+    """Formats the given SQL code using sqlparse with the specified compact configuration."""
     formatted_sql = sqlparse.format(
         sql_code,
         reindent=True,
@@ -77,7 +77,7 @@ def format_sql_in_code_cell(code, sql_keywords):
         [ \t]*=[ \t]*                      # Assignment operator
         (?P<quote_prefix>[frbuFRBU]*)      # Optional prefixes (f, r, b, u)
         (?P<quote_char>['"]{1,3})          # Opening quote(s)
-        (?P<sql_code>.*?)                   # SQL code (non-greedy)
+        (?P<sql_code>.*?)
         (?P=quote_char)                    # Closing quote(s) matching opening
         """,
         re.VERBOSE | re.DOTALL | re.MULTILINE,
@@ -98,31 +98,20 @@ def format_sql_in_code_cell(code, sql_keywords):
         # Handle f-strings: preserve placeholders
         is_f_string = "f" in quote_prefix.lower()
         if is_f_string:
-            # Find placeholders in the f-string
-            placeholder_pattern = re.compile(r"(\{[^}]+\})")
-            placeholders = placeholder_pattern.findall(sql_code)
-            placeholder_markers = [
-                f"__PLACEHOLDER_{i}__" for i in range(len(placeholders))
-            ]
-
-            # Replace placeholders with markers
-            sql_code_no_placeholders = sql_code
-            for ph, marker in zip(placeholders, placeholder_markers):
-                sql_code_no_placeholders = sql_code_no_placeholders.replace(ph, marker)
-
-            # Format the SQL code without placeholders
-            formatted_sql_no_placeholders = format_sql_code(sql_code_no_placeholders)
-
-            # Replace markers with placeholders
-            formatted_sql = formatted_sql_no_placeholders
-            for ph, marker in zip(placeholders, placeholder_markers):
-                formatted_sql = formatted_sql.replace(marker, ph)
+            # No placeholder replacement; assume sqlparse can handle placeholders
+            # Replace the entire SQL code with placeholders intact
+            formatted_sql = format_sql_code(sql_code)
         else:
             # Not an f-string, format directly
             formatted_sql = format_sql_code(sql_code)
 
         # Wrap the formatted SQL code in triple quotes
-        triple_quote_char = '"""' if '"' in quote_char else "'''"
+        # Determine the appropriate triple quote style based on original quote
+        if quote_char.startswith('"'):
+            triple_quote_char = '"""'
+        else:
+            triple_quote_char = "'''"
+
         formatted_sql_wrapped = f"{triple_quote_char}{formatted_sql}{triple_quote_char}"
 
         # Reconstruct the assignment
@@ -150,7 +139,7 @@ def format_sql_in_code_cell(code, sql_keywords):
         r"""
         ^(?P<magic>%%sql\b.*\n)           # %%sql magic command
         (?P<sql>(?:.*\n)*?)               # SQL code (non-greedy)
-        (?=^\S|\Z)                         # Lookahead for non-indented line or end of string
+        (?=^[ \t]*\S|\Z)                   # Lookahead for non-indented line or end of string
         """,
         re.VERBOSE | re.MULTILINE,
     )
@@ -206,11 +195,11 @@ def format_sql_in_code_cell(code, sql_keywords):
         # Format the SQL code
         formatted_sql = format_sql_code(sql_code)
 
-        # Remove leading indentation from each line
-        formatted_sql = "\n".join(line.lstrip() for line in formatted_sql.split("\n"))
+        # Remove leading whitespace from each line and join into a single line
+        formatted_sql = " ".join(line.lstrip() for line in formatted_sql.split("\n"))
 
         # Reconstruct the magic command
-        new_magic = f"{indent}%{magic} {formatted_sql.replace('\n', ' ')}"
+        new_magic = f"{indent}%{magic} {formatted_sql.strip()}"
 
         logger.debug("Formatting %sql magic command.")
         logger.debug(f"Original SQL: {sql_code}")
