@@ -32,6 +32,7 @@ function_names:
   - fetchall
   - fetchone
   - fetchmany
+  - exeucte_query
 
 min_keywords: 2
 # Additional configurations can be added here
