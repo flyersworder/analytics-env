@@ -70,7 +70,7 @@ repos:
     hooks:
       - id: sqlnbfmt
         name: sqlnbfmt
-        entry: sqlnbfmt
+        entry: uv run sqlnbfmt
         language: system
         types: [jupyter]
         args: [--config, config.yaml]
