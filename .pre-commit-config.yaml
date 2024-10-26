@@ -68,16 +68,12 @@ repos:
           )
   - repo: local
     hooks:
-      - id: format-sql-in-notebook
-        name: Format SQL in Notebooks
-        entry: uv run python scripts/format_sql_in_notebook_sqlparse.py
+      - id: sqlnbfmt
+        name: sqlnbfmt
+        entry: sqlnbfmt
         language: system
         types: [jupyter]
-        args:
-          - "--config"
-          - "config.yaml"
-          - "--log-level"
-          - "INFO"
+        args: [--config, config.yaml]
         exclude: |
           (^|/)(
             venv/|

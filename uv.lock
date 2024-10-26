@@ -18,6 +18,7 @@ dependencies = [
     { name = "seaborn" },
     { name = "sqlfluff" },
     { name = "sqlglot", extra = ["rs"] },
+    { name = "sqlnbfmt" },
     { name = "sqlparse" },
     { name = "thefuzz" },
 ]
@@ -36,6 +37,7 @@ requires-dist = [
     { name = "seaborn", specifier = ">=0.13.2" },
     { name = "sqlfluff", specifier = ">=3.2.4" },
     { name = "sqlglot", extras = ["rs"], specifier = ">=25.25.1" },
+    { name = "sqlnbfmt", specifier = ">=0.1.0" },
     { name = "sqlparse", specifier = ">=0.5.1" },
     { name = "thefuzz", specifier = ">=0.22.1" },
 ]
@@ -1944,6 +1946,21 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/d9/48/37242f11c024d216b26a2dd6d9fb1a825b524c784cf194b45acac387aa6e/sqlglotrs-0.2.12-cp312-cp312-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:954ccd912391ab5922adb23159ebcc0c5dccb468381e2a1ce92117cb4b0f0ed3", size = 351723 },
     { url = "https://files.pythonhosted.org/packages/08/c1/b0c5532a429291b878621ff7052fe6cfa294d725a75aa620da95ef493f75/sqlglotrs-0.2.12-cp312-none-win32.whl", hash = "sha256:5be231acf95920bed473524dd1cac93e4cb320ed7e6ae937531b232c54cfc232", size = 182840 },
     { url = "https://files.pythonhosted.org/packages/40/81/77e63b3326763732dfa940b37215d6dee38dc0ed713fb19fca60f879467d/sqlglotrs-0.2.12-cp312-none-win_amd64.whl", hash = "sha256:4c07d3dba9c3ae8b56a0e45a9e47aa2a2c6ed95870c5bcc67dacaadb873843ff", size = 193144 },
+]
+
+[[package]]
+name = "sqlnbfmt"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "astor" },
+    { name = "nbformat" },
+    { name = "pyyaml" },
+    { name = "sqlglot" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ab/38/79eec1c4541e11a7c8723d0f2dd644e30609f1cf6df804c1080a49c90db3/sqlnbfmt-0.1.0.tar.gz", hash = "sha256:f584064d0a40fd2379fb45315ec19aea2a0b0b960007ae0a0399e1aa06d4da40", size = 9653 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e0/a8/c982b758017610bfeb558263c9105f5e56145d58f53a647eaa3f3b1ee59b/sqlnbfmt-0.1.0-py3-none-any.whl", hash = "sha256:e6e1c5830568bbf8a333b0f41974b1fa7133d5afcb5ce92d419a6a7dd6576fc9", size = 6661 },
 ]
 
 [[package]]

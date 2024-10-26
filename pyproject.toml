@@ -17,6 +17,7 @@ dependencies = [
     "seaborn>=0.13.2",
     "sqlfluff>=3.2.4",
     "sqlglot[rs]>=25.25.1",
+    "sqlnbfmt>=0.1.0",
     "sqlparse>=0.5.1",
     "thefuzz>=0.22.1",
 ]
