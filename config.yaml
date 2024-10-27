@@ -44,7 +44,6 @@ sql_decorators:
 # Formatting options
 formatting_options:
   single_line_threshold: 80  # Maximum length for single-line SQL
-  preserve_comments: true    # Keep SQL comments in formatted output
   indent_width: 4           # Number of spaces for indentation
 
 min_keywords: 2
