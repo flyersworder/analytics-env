@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.7.1  # Use the latest stable version
+    rev: v0.7.2  # Use the latest stable version
     hooks:
       - id: ruff
         args: [--fix, "--line-length=88"]
@@ -66,12 +66,11 @@ repos:
             build/|
             dist/
           )
-  - repo: local
+  - repo: https://github.com/flyersworder/sqlnbfmt
+    rev: v0.1.4
     hooks:
       - id: sqlnbfmt
         name: sqlnbfmt
-        entry: uv run sqlnbfmt
-        language: system
         types: [jupyter]
         args: [--config, config.yaml]
         exclude: |
