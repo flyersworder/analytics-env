@@ -1,0 +1,269 @@
+---
+title: "📊 Analytics Environment Overview"
+author: "Qing Ye"
+format:
+  revealjs:
+    theme: [default]
+    transition: fade
+    slide-number: true
+    width: 1600
+    height: 900
+    margin: 0.1
+    code-copy: true
+    preview-links: auto
+    controls: true
+    progress: true
+    history: true
+    center: false
+    logo: ""
+    footer: "ATV DCE ACP"
+    embed-resources: true    # This makes it standalone
+    standalone: true        # This ensures all assets are bundled
+    self-contained: true    # This includes all dependencies
+---
+
+## 🖥️  1: Overview of the Analytics Environment
+
+### 📄 Introduction
+- Our analytics 🌍 environment is built to help everyone work better by focusing on **🔄 consistency**, **🤝 teamwork**, and **⚡ efficiency**.
+- By using the same 🛠️ tools and processes, we make it easier for the team to work together, avoid problems, and get more done ✅.
+
+---
+
+## 🖥️  2: Benefits of Standardization
+
+### 🌟 Key Benefits
+- **Benefits**: Standardizing tools and processes reduces errors, enhances collaboration, and ensures all team members are aligned.
+- **Key Focus Areas**: Consistency in workflows, efficient resource use, and strong collaboration culture.
+
+---
+
+## 🖥️  3: Dependency Management with uv
+
+### 🤔 What is uv?
+- `uv` is a 🛠️ tool that helps us manage 🐍 Python environments and all the 📚 libraries we need.
+
+### ✨ Key Benefits
+- **🔄 Consistency**: Everyone uses the same environment, which means we avoid version issues 🚫.
+- **🗂️ Codespace Feature**: Makes it easier to keep each project separate.
+  - Helps set up environments quickly ⏱️, making it easier for new team members to get started 🚀.
+- **⚙️ Simplified Management**: Less time spent fixing environment problems, more time focusing on analysis 📊.
+
+---
+
+## 🖥️  4: Code Review Process Using Git
+
+### 🤝 Code Collaboration with Git
+- **📋 Pull Requests**: All code changes go through a pull request to make sure they are reviewed properly ✅.
+- **👥 Team Collaboration**: Team members are asked to review pull requests to give feedback on the analysis and code 📝.
+- **👍 Best Practices**: Peer reviews help everyone learn 📚, keep up coding standards, and improve the quality of work 💪.
+
+---
+
+## 🖥️  5: Code Standardization with Pre-Commit Hooks
+
+### ❓ What are Pre-Commit Hooks?
+- Pre-commit hooks are automated checks 🤖 that run before code is added to the project.
+
+### 💡 Benefits
+- **🤖 Automated Checks**: Make sure code style, formatting, and linting are consistent 📏.
+- **🗃️ SQL Query Standardization**: SQL code is formatted automatically to make it easier to read 📖.
+- **💪 Team-wide Benefits**: Saves time ⏱️ during code reviews by focusing on functionality instead of style issues.
+- **Examples**: Hooks to enforce consistent SQL formatting, Python linting, and code style.
+
+---
+
+## 🖥️  6: Notebook Numbering and Standard Coding System
+
+### 🔢 Standardized Notebook Numbering
+- All 📓 Jupyter notebooks follow a consistent numbering system by project and topic.
+- **📂 Organized Structure**: This structure makes it easier to find 🔍 and organize notebooks.
+- **📋 Example Naming Convention**: Example: `002_001_PII_data_analysis.ipynb` shows the order and purpose of the notebook.
+- **🔍 Benefits**: A predictable system makes it easier for everyone to navigate 🧭 and collaborate 🤝.
+
+---
+
+## 🖥️  7: Data Sharing Solutions
+
+### 🔄 DVC with S3
+- **🗂️ Version Control**: DVC (Data Version Control) with S3 helps us manage different versions of datasets, making sure everything is reproducible 🔁.
+- **🤝 Collaborative Access**: Ensures everyone has access to the same version of data, avoiding confusion 🤷.
+
+### 📊 HDFS for Larger Datasets
+- **📈 Scalability**: HDFS (Hadoop Distributed File System) is great for managing very large datasets 📦.
+- **💼 Use Cases**: Useful for projects that need to process large amounts of data 📊.
+
+---
+
+## 🖥️  8: GitLab CI/CD for Automation
+
+### 🤖 What is CI/CD?
+- CI/CD (Continuous Integration/Continuous Deployment) pipelines in GitLab help automate our workflows 🔄.
+
+### ⚙️ Automation Potential
+- **🔄 Examples**: Run tests automatically ✅, check data pipelines, and create reports 📑.
+- **✨ Benefits**: Saves time ⏱️, keeps things consistent, and catches problems early 🚩.
+- **🔮 Future Potential**: Find more tasks we can automate to save even more time and reduce manual work 🛠️.
+
+---
+
+## 🖥️  9: Project Management with GitLab Issue Board
+
+### 🗂️ Issue Tracking with GitLab
+- **📑 Standard Templates**: Use templates for common tasks to keep things consistent 📋.
+- **✅ Accountability**: Assigning tasks makes sure everyone knows who is responsible 👤.
+- **👀 Visual Progress Tracking**: The GitLab issue board helps us see how projects are going 📊 and identify any blockers 🚧.
+
+---
+
+## 🖥️  10: Summary and Next Steps
+
+### 🔄 Recap
+- We covered key parts of our analytics environment: managing dependencies, code reviews, data sharing, automation, and project management 🛠️.
+- **Integrated Approach**: Our standardized environment enhances collaboration, improves efficiency, and reduces errors.
+
+### ➡️ Next Steps
+- Invite questions ❓ and suggestions from the team to continue improving our workflows 📈.
+- **🤝 Engage the Team**: Ask for feedback on any challenges or ideas for further improvement 💡.
+- **Follow-Up**: Schedule a follow-up meeting to address specific improvements based on feedback.
+
+---
+
+<style>
+/* FT-inspired color palette */
+:root {
+  --ft-pink: #FFF1E5;
+  --ft-black: #33302E;
+  --ft-blue: #0D7680;
+  --ft-slate: #66605C;
+  --ft-teal: #0D7680;
+  --ft-red: #990F3D;
+}
+
+/* Base slide styling */
+.reveal .slides section {
+  font-family: 'MetricWeb', Georgia, serif;
+  font-size: calc(20px + 0.5vw);
+  line-height: 1.6;
+  padding: 40px;
+  width: 95%;
+  height: 95%;
+  background-color: var(--ft-pink);
+  color: var(--ft-black);
+}
+
+/* Header styles */
+.reveal h1 {
+  font-family: 'FinancierDisplayWeb', Georgia, serif;
+  font-size: calc(48px + 1vw);
+  color: var(--ft-black);
+  font-weight: 400;
+  margin-bottom: 0.5em;
+  border-bottom: 2px solid var(--ft-blue);
+  padding-bottom: 0.2em;
+}
+
+.reveal h2 {
+  font-family: 'FinancierDisplayWeb', Georgia, serif;
+  font-size: calc(40px + 0.8vw);
+  color: var(--ft-black);
+  font-weight: 400;
+  margin-bottom: 0.4em;
+}
+
+.reveal h3 {
+  font-family: 'MetricWeb', Georgia, serif;
+  font-size: calc(32px + 0.6vw);
+  color: var(--ft-slate);
+  font-weight: 500;
+  margin-bottom: 0.3em;
+}
+
+/* List styling */
+.reveal ul, .reveal ol {
+  margin: 0.8em 0;
+  padding-left: 1.5em;
+  width: 90%;
+}
+
+.reveal li {
+  margin: 0.5em 0;
+  line-height: 1.4;
+  color: var(--ft-black);
+}
+
+/* Links */
+.reveal a {
+  color: var(--ft-blue);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ft-blue);
+}
+
+.reveal a:hover {
+  color: var(--ft-teal);
+  border-bottom: 2px solid var(--ft-teal);
+}
+
+/* Code blocks */
+.reveal pre {
+  background-color: #FFFFFF;
+  border: 1px solid #CCC1B7;
+  border-radius: 4px;
+  margin: 1em 0;
+}
+
+.reveal pre code {
+  padding: 1em;
+  max-height: 500px;
+  font-size: 1.2em;
+  color: var(--ft-black);
+}
+
+/* Emphasis and strong text */
+.reveal strong {
+  color: var(--ft-red);
+  font-weight: 500;
+}
+
+.reveal em {
+  font-style: normal;
+  font-size: 1.1em;
+}
+
+/* Footer styling */
+.reveal .footer {
+  color: var(--ft-slate);
+  font-size: 0.8em;
+  font-family: 'MetricWeb', sans-serif;
+}
+
+/* Slide numbers */
+.reveal .slide-number {
+  color: var(--ft-slate);
+  background-color: transparent;
+  font-family: 'MetricWeb', sans-serif;
+}
+
+/* Progress bar */
+.reveal .progress {
+  color: var(--ft-blue);
+  height: 3px;
+}
+
+/* Custom blockquote style */
+.reveal blockquote {
+  border-left: 4px solid var(--ft-blue);
+  padding-left: 1em;
+  margin: 1em 0;
+  color: var(--ft-slate);
+  font-style: italic;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 1024px) {
+  .reveal .slides section {
+    font-size: calc(18px + 0.5vw);
+    padding: 30px;
+  }
+}
+</style>
