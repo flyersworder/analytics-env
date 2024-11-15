@@ -27,6 +27,22 @@ repos:
             dist/|
             .ipynb_checkpoints/
           )
+  - repo: https://github.com/flyersworder/sqlnbfmt
+    rev: v0.1.4
+    hooks:
+      - id: sqlnbfmt
+        name: sqlnbfmt
+        types: [jupyter]
+        args: [--config, config.yaml]
+        exclude: |
+          (^|/)(
+            venv/|
+            env/|
+            .venv/|
+            build/|
+            dist/|
+            .ipynb_checkpoints/
+          )
   - repo: https://github.com/nbQA-dev/nbQA
     rev: 1.9.1
     hooks:
@@ -65,22 +81,6 @@ repos:
             .venv/|
             build/|
             dist/
-          )
-  - repo: https://github.com/flyersworder/sqlnbfmt
-    rev: v0.1.4
-    hooks:
-      - id: sqlnbfmt
-        name: sqlnbfmt
-        types: [jupyter]
-        args: [--config, config.yaml]
-        exclude: |
-          (^|/)(
-            venv/|
-            env/|
-            .venv/|
-            build/|
-            dist/|
-            .ipynb_checkpoints/
           )
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.0
