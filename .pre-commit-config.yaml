@@ -28,7 +28,7 @@ repos:
             .ipynb_checkpoints/
           )
   - repo: https://github.com/flyersworder/sqlnbfmt
-    rev: v0.1.4
+    rev: v0.1.5
     hooks:
       - id: sqlnbfmt
         name: sqlnbfmt
