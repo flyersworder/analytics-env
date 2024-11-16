@@ -6,9 +6,11 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "astor>=0.8.1",
+    "black>=24.10.0",
     "jupysql>=0.10.14",
     "matplotlib>=3.9.2",
     "nbformat>=5.10.4",
+    "nbqa>=1.9.1",
     "notebook>=7.2.2",
     "pandas>=2.2.3",
     "plotly>=5.24.1",
