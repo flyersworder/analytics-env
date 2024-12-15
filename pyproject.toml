@@ -26,6 +26,7 @@ dependencies = [
     "sqlnbfmt>=0.1.0",
     "sqlparse>=0.5.1",
     "statsmodels>=0.14.4",
+    "tavily-python>=0.5.0",
     "thefuzz>=0.22.1",
 ]
 
