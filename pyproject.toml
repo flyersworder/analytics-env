@@ -34,6 +34,8 @@ dependencies = [
     "thefuzz>=0.22.1",
     "langchain-google-genai>=2.0.7",
     "docker>=7.1.0",
+    "ipywidgets>=8.1.5",
+    "tqdm>=4.67.1",
 ]
 
 # pyproject.toml
