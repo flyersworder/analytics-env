@@ -3,7 +3,43 @@ import pandas as pd
 from datetime import timedelta
 
 
-def create_customer_journey(data, key_events=None, padding_days=10):
+def wrap_text(text, max_chars=40):
+    """Wrap text into multiple lines with a given character limit."""
+    words = text.split()
+    lines, current_line = [], []
+
+    for word in words:
+        if (
+            sum(len(w) for w in current_line) + len(current_line) + len(word)
+            <= max_chars
+        ):
+            current_line.append(word)
+        else:
+            lines.append(" ".join(current_line))
+            current_line = [word]
+    lines.append(" ".join(current_line))
+    return "<br>".join(lines)
+
+
+def create_customer_journey_with_ft_style(
+    data, key_events=None, padding_days=10, max_chars=40
+):
+    # Helper function to wrap text
+    def wrap_text(text, max_chars):
+        words = text.split()
+        lines, current_line = [], []
+        for word in words:
+            if (
+                sum(len(w) for w in current_line) + len(current_line) + len(word)
+                <= max_chars
+            ):
+                current_line.append(word)
+            else:
+                lines.append(" ".join(current_line))
+                current_line = [word]
+        lines.append(" ".join(current_line))
+        return "<br>".join(lines)
+
     # Convert to DataFrame
     df = pd.DataFrame(data)
     df["Time"] = pd.to_datetime(df["Time"], errors="coerce")
@@ -34,36 +70,36 @@ def create_customer_journey(data, key_events=None, padding_days=10):
     start_date = df["Time"].min() - timedelta(days=padding_days)
     end_date = df["Time"].max() + timedelta(days=padding_days)
 
-    # Dynamic vertical positioning to avoid overlap
-    y_positions = []
-    last_time = None
-    last_position = 0
+    # Define unique journey stages and assign y-axis positions
+    unique_journeys = df["Journey"].unique()
+    journey_positions = {journey: i for i, journey in enumerate(unique_journeys)}
+    df["Journey_Position"] = df["Journey"].map(journey_positions)
 
-    for i, time in enumerate(df["Time"]):
-        if last_time and (time - last_time).days <= 3:
-            last_position += 50
-        else:
-            last_position = 50 if i % 2 == 0 else -50
-        y_positions.append(last_position)
-        last_time = time
-
-    df["Y_Position"] = y_positions
+    # Ensure the 'Is_Key_Event' column is created properly
     df["Is_Key_Event"] = df["Activity"].isin(key_events) if key_events else False
+
+    # FT-Style Color Palette for Journey Stages
+    ft_colors = ["#e0d5c6", "#b6cce5", "#a4c3a8", "#f1a6ab", "#dfd3e6", "#f4e9b6"]
+    journey_colors = {
+        journey: ft_colors[i % len(ft_colors)]
+        for i, journey in enumerate(unique_journeys)
+    }
 
     # Create the figure
     fig = go.Figure()
 
-    # Add dashed placeholders for inactive periods
-    placeholder_df = pd.date_range(start=start_date, end=end_date, freq="D")
-    for i in range(len(placeholder_df) - 1):
-        fig.add_trace(
-            go.Scatter(
-                x=[placeholder_df[i], placeholder_df[i + 1]],
-                y=[0, 0],
-                mode="lines",
-                line=dict(color="lightgray", dash="dash"),
-                hoverinfo="none",
-            )
+    # Add journey stage bands
+    for journey, position in journey_positions.items():
+        fig.add_shape(
+            type="rect",
+            x0=start_date,
+            x1=end_date,
+            y0=position - 0.5,
+            y1=position + 0.5,
+            fillcolor=journey_colors[journey],
+            opacity=0.4,
+            layer="below",
+            line_width=0,
         )
 
     # Add markers for actual events
@@ -71,31 +107,35 @@ def create_customer_journey(data, key_events=None, padding_days=10):
         fig.add_trace(
             go.Scatter(
                 x=[row["Time"]],
-                y=[0],
+                y=[row["Journey_Position"]],
                 mode="markers",
                 marker=dict(
                     size=18 if row["Is_Key_Event"] else 14,
-                    color="red" if row["Is_Key_Event"] else "#1f77b4",
+                    color="#5a5a5a" if not row["Is_Key_Event"] else "#d62728",
                     line=dict(width=1.5, color="black"),
                 ),
                 hovertext=f"{row['Activity']}: {row['Description']}",
                 hoverinfo="text",
+                showlegend=False,  # Disable legend for individual events
             )
         )
 
-    # Add annotations
+    # Add annotations with wrapped text
     for _, row in df.iterrows():
+        wrapped_text = (
+            f"<b>{row['Activity']}</b><br>{wrap_text(row['Description'], max_chars)}"
+        )
         fig.add_annotation(
             x=row["Time"],
-            y=0,
-            text=f"<b>{row['Activity']}</b><br>{row['Description']}",
+            y=row["Journey_Position"],
+            text=wrapped_text,
             showarrow=True,
             arrowhead=2,
             arrowsize=1,
             arrowwidth=1,
             arrowcolor="#999999",
             ax=0,
-            ay=row["Y_Position"],
+            ay=-50,  # Adjust position slightly above the marker
             font=dict(size=12, color="#333333"),
             align="left",
             bgcolor="#f9f9f9",
@@ -104,134 +144,65 @@ def create_customer_journey(data, key_events=None, padding_days=10):
             borderpad=4,
         )
 
-    # Style adjustments
+    # Add a legend for journey stages
+    for journey, color in journey_colors.items():
+        fig.add_trace(
+            go.Scatter(
+                x=[None],
+                y=[None],
+                mode="markers",
+                marker=dict(size=10, color=color),
+                name=journey,
+            )
+        )
+
+    # Style adjustments for FT aesthetic
     fig.update_layout(
-        title="Customer Journey Timeline (Automated Dates)",
+        title="Customer Journey Timeline (FT Style)",
         xaxis=dict(
             title="Time",
             range=[start_date, end_date],
             showgrid=False,
             showline=True,
-            linecolor="#cccccc",
+            linecolor="#999999",
             tickformat="%Y-%m-%d",
             tickfont=dict(size=12, color="#333333"),
         ),
-        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+        yaxis=dict(
+            title="Journey Stages",
+            tickmode="array",
+            tickvals=list(journey_positions.values()),
+            ticktext=list(journey_positions.keys()),
+            showgrid=False,
+            zeroline=False,
+        ),
         margin=dict(l=50, r=50, t=50, b=50),
         plot_bgcolor="#ffffff",
         height=700,
-        showlegend=False,
+        showlegend=True,
     )
 
     return fig
 
 
-test_cases = [
-    {
-        "title": "Sparse Events",
-        "data": {
-            "Activity": ["Download Data Sheet", "BuyButton", "Attend Webinar"],
-            "Description": [
-                "Data Sheet: Product A",
-                "Purchase Button Clicked",
-                "Webinar: AI Trends",
-            ],
-            "Time": ["2024-01-01", "2024-02-10", "2024-02-25"],
-        },
-        "key_events": ["BuyButton"],
-    },
-    {
-        "title": "Intense Events",
-        "data": {
-            "Activity": ["Event 1", "Event 2", "BuyButton", "Event 4"],
-            "Description": [
-                "Description 1",
-                "Description 2",
-                "Purchase Made",
-                "Description 4",
-            ],
-            "Time": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04"],
-        },
-        "key_events": ["BuyButton"],
-    },
-    {
-        "title": "Single Event",
-        "data": {
-            "Activity": ["Single Event"],
-            "Description": ["A single event occurred"],
-            "Time": ["2024-01-15"],
-        },
-        "key_events": ["Single Event"],
-    },
-    {
-        "title": "Evenly Distributed Events",
-        "data": {
-            "Activity": ["Event A", "Event B", "Event C", "Event D"],
-            "Description": [
-                "Description A",
-                "Description B",
-                "Description C",
-                "Description D",
-            ],
-            "Time": ["2024-01-01", "2024-01-10", "2024-01-20", "2024-01-30"],
-        },
-        "key_events": [],
-    },
-    {
-        "title": "All Key Events",
-        "data": {
-            "Activity": ["KeyEvent1", "KeyEvent2", "KeyEvent3"],
-            "Description": [
-                "Key description 1",
-                "Key description 2",
-                "Key description 3",
-            ],
-            "Time": ["2024-01-05", "2024-01-15", "2024-01-25"],
-        },
-        "key_events": ["KeyEvent1", "KeyEvent2", "KeyEvent3"],
-    },
-    {
-        "title": "Very Dense Events",
-        "data": {
-            "Activity": ["Event X1", "Event X2", "Event X3", "Event X4"],
-            "Description": [
-                "Dense event 1",
-                "Dense event 2",
-                "Dense event 3",
-                "Dense event 4",
-            ],
-            "Time": ["2024-01-01", "2024-01-01", "2024-01-01", "2024-01-01"],
-        },
-        "key_events": [],
-    },
-    {
-        "title": "Long Timeline",
-        "data": {
-            "Activity": ["Event L1", "Event L2", "Event L3", "Event L4"],
-            "Description": [
-                "Long timeline 1",
-                "Long timeline 2",
-                "Long timeline 3",
-                "Long timeline 4",
-            ],
-            "Time": ["2024-01-01", "2024-03-01", "2024-06-01", "2024-12-01"],
-        },
-        "key_events": [],
-    },
-    {
-        "title": "No Events",
-        "data": {"Activity": [], "Description": [], "Time": []},
-        "key_events": [],
-    },
-]
+# Test case with journeys
+test_data = {
+    "Activity": [
+        "Download Data Sheet",
+        "BuyButton",
+        "Attend Webinar",
+        "Prototype Testing",
+    ],
+    "Description": [
+        "Downloaded data sheet for Product A",
+        "Clicked the purchase button",
+        "Attended an AI trends webinar",
+        "Completed prototype testing",
+    ],
+    "Time": ["2024-01-01", "2024-02-10", "2024-02-25", "2024-03-15"],
+    "Journey": ["Awareness", "Purchase", "Consider", "Prototype"],
+}
 
-# Rerun test scenarios
-figures = []
-for case in test_cases:
-    fig = create_customer_journey(case["data"], key_events=case["key_events"])
-    fig.update_layout(title=case["title"])
-    figures.append(fig)
-
-# Display results for all test cases
-for fig in figures:
-    fig.show()
+# Generate the figure
+fig = create_customer_journey_with_ft_style(test_data, key_events=["BuyButton"])
+fig.show()
