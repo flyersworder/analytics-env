@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.7.4  # Use the latest stable version
+    rev: v0.8.5  # Use the latest stable version
     hooks:
       - id: ruff
         args: [--fix, "--line-length=88"]
@@ -69,7 +69,7 @@ repos:
             .ipynb_checkpoints/
           )
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: 3.2.5
+    rev: 3.3.0
     hooks:
       - id: sqlfluff-fix
         args: ["--dialect", "ansi"]
@@ -83,7 +83,7 @@ repos:
             dist/
           )
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.8.0
+    rev: 0.8.1
     hooks:
       - id: nbstripout
         exclude: |
