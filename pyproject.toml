@@ -37,6 +37,7 @@ dependencies = [
     "ipywidgets>=8.1.5",
     "tqdm>=4.67.1",
     "aisuite[all]>=0.1.6",
+    "pdf2docx>=0.5.8",
 ]
 
 # pyproject.toml
