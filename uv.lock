@@ -119,6 +119,7 @@ dependencies = [
     { name = "ipywidgets" },
     { name = "jupysql" },
     { name = "langchain" },
+    { name = "langchain-experimental" },
     { name = "langchain-google-genai" },
     { name = "langchain-google-vertexai" },
     { name = "llama-index" },
@@ -142,6 +143,7 @@ dependencies = [
     { name = "sqlnbfmt" },
     { name = "sqlparse" },
     { name = "statsmodels" },
+    { name = "tabulate" },
     { name = "tavily-python" },
     { name = "thefuzz" },
     { name = "tqdm" },
@@ -159,6 +161,7 @@ requires-dist = [
     { name = "ipywidgets", specifier = ">=8.1.5" },
     { name = "jupysql", specifier = ">=0.10.14" },
     { name = "langchain", specifier = ">=0.3.13" },
+    { name = "langchain-experimental", specifier = ">=0.3.4" },
     { name = "langchain-google-genai", specifier = ">=2.0.7" },
     { name = "langchain-google-vertexai", specifier = ">=2.0.9" },
     { name = "llama-index", specifier = ">=0.12.1" },
@@ -182,6 +185,7 @@ requires-dist = [
     { name = "sqlnbfmt", specifier = ">=0.1.0" },
     { name = "sqlparse", specifier = ">=0.5.1" },
     { name = "statsmodels", specifier = ">=0.14.4" },
+    { name = "tabulate", specifier = ">=0.9.0" },
     { name = "tavily-python", specifier = ">=0.5.0" },
     { name = "thefuzz", specifier = ">=0.22.1" },
     { name = "tqdm", specifier = ">=4.67.1" },
@@ -386,7 +390,7 @@ wheels = [
 
 [[package]]
 name = "banks"
-version = "2.0.0"
+version = "2.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "deprecated" },
@@ -394,9 +398,9 @@ dependencies = [
     { name = "jinja2" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/bf/52/89890685f3ec961de8a5632a062daa25b32b5f79bf5f2ebc80aec1ceb5ff/banks-2.0.0.tar.gz", hash = "sha256:036b7990f690a8282905fdc6970627efd3e7f1d05f09d6d39a565ef4e9b1971a", size = 172845 }
+sdist = { url = "https://files.pythonhosted.org/packages/e1/11/d496426dd72d728b2abfe57ac4724f2bcfebe53e8ee4ecea056213878757/banks-2.1.0.tar.gz", hash = "sha256:d1eb3b567cc7e18319c743387cd84a2cd2afb3621f793cf6a051b6993c6e4e2d", size = 172896 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c9/e9/47267267d451d55606c5edcaa56b18e4485fb75ddb751ecfe761d8c99c29/banks-2.0.0-py3-none-any.whl", hash = "sha256:26eeca39f2d5e41ac29661cfcfbff9a3f4adf79e0ddfb05ca29e79aa15d337af", size = 28061 },
+    { url = "https://files.pythonhosted.org/packages/83/57/b9449147cedef47ca33055de1920ce7b12d0745c4f5d161e17312fc27a76/banks-2.1.0-py3-none-any.whl", hash = "sha256:50c902df6407ce544020273529abb3dc84157450d6d616a349a5a459e1d6b899", size = 28042 },
 ]
 
 [[package]]
@@ -1471,14 +1475,14 @@ wheels = [
 
 [[package]]
 name = "griffe"
-version = "1.7.0"
+version = "1.7.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/cc/e1/7dded768fe1adf67879bcd86cf83476e7b19f13d95e6504b6c2b91092f8c/griffe-1.7.0.tar.gz", hash = "sha256:72e9c1593c7af92a387906293fc4a318c2e8e8aef501c64678c809794b4bdca4", size = 394351 }
+sdist = { url = "https://files.pythonhosted.org/packages/30/1b/fe7a3a33a2fb7ad7807f71957e6108a50d93271ab718d9a56080415f66de/griffe-1.7.1.tar.gz", hash = "sha256:464730d0e95d0afd038e699a5f7276d7438d0712db0c489a17e761f70e011507", size = 394522 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/66/b3/6201c5dc97ed76398eb419d17fe18db6b4b3ffb2baa2bae91b4c65126096/griffe-1.7.0-py3-none-any.whl", hash = "sha256:6b44efc53a3f290d42c4da521f42235177b3bd107877dd55955318a37930c572", size = 129118 },
+    { url = "https://files.pythonhosted.org/packages/1d/94/48e28b1c7402f750200e9e3ef4834c862ea85c64f426a231a6dc312f61a9/griffe-1.7.1-py3-none-any.whl", hash = "sha256:37a7f15233937d723ddc969fa4117fdd03988885c16938dc43bccdfe8fa4d02d", size = 129134 },
 ]
 
 [[package]]
@@ -1926,11 +1930,11 @@ wheels = [
 
 [[package]]
 name = "jsonpickle"
-version = "4.0.2"
+version = "4.0.4"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/2c/6f/e73cb91f774ad1077929a29b3a4af6e5603beb446cb99a55debe240664c3/jsonpickle-4.0.2.tar.gz", hash = "sha256:3e650b9853adcdab9d9d62a88412b6d36e9a59ba423b01cacf0cd4ee80733aca", size = 315121 }
+sdist = { url = "https://files.pythonhosted.org/packages/10/7f/53c5534899311d1b76d524c7dcb99ba1f31fcf153204a482d97c15da27d7/jsonpickle-4.0.4.tar.gz", hash = "sha256:2ac818e5dfc316b57fb7a86641c1c84d21b8f355518054ffe7f697be078f2f63", size = 315600 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5e/c8/e9dc0af97ce006616abbd7f522d0b45ac322a77f72bb29d901b5114a49ba/jsonpickle-4.0.2-py3-none-any.whl", hash = "sha256:cd3c90d32a68dcaa7f0e4b918bda7d4bb61f3c03b182d82dae2caf9ded0ab6b3", size = 46325 },
+    { url = "https://files.pythonhosted.org/packages/b1/45/6df4d4ac5cc733d822dd22a94a82b5f8fab974c62ddd62d12d122f07b29f/jsonpickle-4.0.4-py3-none-any.whl", hash = "sha256:356c42ca5b03e371b6cf527d588bfddfe35109cdd1acbb455428f44cbc16a36e", size = 46374 },
 ]
 
 [[package]]
@@ -2277,6 +2281,29 @@ wheels = [
 ]
 
 [[package]]
+name = "langchain-community"
+version = "0.3.20"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "aiohttp" },
+    { name = "dataclasses-json" },
+    { name = "httpx-sse" },
+    { name = "langchain" },
+    { name = "langchain-core" },
+    { name = "langsmith" },
+    { name = "numpy" },
+    { name = "pydantic-settings" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "sqlalchemy" },
+    { name = "tenacity" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/86/bb/a07609679781199738934226bb2764c12541573bc4feeaf21e9f3ad5caf4/langchain_community-0.3.20.tar.gz", hash = "sha256:bd83b4f2f818338423439aff3b5be362e1d686342ffada0478cd34c6f5ef5969", size = 33221203 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ab/4b/2652cfd2baa482cb3cdbec1ccccae1674418b7576f21ba7724d8730de9db/langchain_community-0.3.20-py3-none-any.whl", hash = "sha256:ea3dbf37fbc21020eca8850627546f3c95a8770afc06c4142b40b9ba86b970f7", size = 2524455 },
+]
+
+[[package]]
 name = "langchain-core"
 version = "0.3.49"
 source = { registry = "https://pypi.org/simple" }
@@ -2292,6 +2319,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/73/bd/db939ba59f28a4ac73fa64281e21f5011ce61fd694c03b88946a554d8442/langchain_core-0.3.49.tar.gz", hash = "sha256:d9dbff9bac0021463a986355c13864d6a68c41f8559dbbd399a68e1ebd9b04b9", size = 536469 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/dd/35/27164f5f23517be8639b518130e6235293dae52c41988790e0b50dd7ba11/langchain_core-0.3.49-py3-none-any.whl", hash = "sha256:893ee42c9af13bf2a2d8c2ec15ba00a5c73cccde21a2bd005234ee0e78a2bdf8", size = 420102 },
+]
+
+[[package]]
+name = "langchain-experimental"
+version = "0.3.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "langchain-community" },
+    { name = "langchain-core" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/27/56/a8acbb08a03383c28875b3b151e4cefea5612266917fbd6fc3c14c21e172/langchain_experimental-0.3.4.tar.gz", hash = "sha256:937c4259ee4a639c618d19acf0e2c5c2898ef127050346edc5655259aa281a21", size = 140532 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b2/27/fe8caa4884611286b1f7d6c5cfd76e1fef188faaa946db4fde6daa1cd2cd/langchain_experimental-0.3.4-py3-none-any.whl", hash = "sha256:2e587306aea36b60fa5e5fc05dc7281bee9f60a806f0bf9d30916e0ee096af80", size = 209154 },
 ]
 
 [[package]]
@@ -2380,32 +2420,33 @@ wheels = [
 
 [[package]]
 name = "llama-cloud"
-version = "0.1.16"
+version = "0.1.17"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "certifi" },
     { name = "httpx" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/09/a5/f4a6c790b89d723710fb42177172f419fb027dae0557f36328351be9a9d9/llama_cloud-0.1.16.tar.gz", hash = "sha256:fc68b24471907958d4862a3db1e973513de76d42f58c29d935b92c06cb1f4e3e", size = 92235 }
+sdist = { url = "https://files.pythonhosted.org/packages/99/be/c45ed143cacc724b7f94a2fd5f4dc1f2dbce34a3f202bf692a76405a8d0b/llama_cloud-0.1.17.tar.gz", hash = "sha256:f351fa0f1f5b6b9bce650eda78fc84511ba72c09bdafd4525fde6b7a4aac20f3", size = 93485 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1a/f4/4eb640445e1a2237d19ac80bf54827dddb7f02fd22c6d7513e0ca68a2f2f/llama_cloud-0.1.16-py3-none-any.whl", hash = "sha256:a484cf762d2741282f96033c0c09f6c8ad1b93b4efb7520088647fd845d341d4", size = 251264 },
+    { url = "https://files.pythonhosted.org/packages/a6/f4/88fcca1f93dea61412f9a9167782d48e166b87cc5052c3badef87a26541e/llama_cloud-0.1.17-py3-none-any.whl", hash = "sha256:4c13267c23d336227176d33ef9cd091f77aded4e1c9c6e7031a3b0ecfe7d5c8d", size = 253930 },
 ]
 
 [[package]]
 name = "llama-cloud-services"
-version = "0.6.8"
+version = "0.6.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "llama-cloud" },
     { name = "llama-index-core" },
+    { name = "platformdirs" },
     { name = "pydantic" },
     { name = "python-dotenv" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/23/f7/e55592cfc14a8429b1c50480f92527627a6e232e31a2ed41fd2a1b5a72e6/llama_cloud_services-0.6.8.tar.gz", hash = "sha256:572c2b955bbf8ba2bbd5ec80d5fbdb92185fd9a4f8134b82a87ac43165d47732", size = 24964 }
+sdist = { url = "https://files.pythonhosted.org/packages/78/06/6d376c5bba982fa69934592a2bb1e025d94b8e750db7c730063cb8e8f8c1/llama_cloud_services-0.6.9.tar.gz", hash = "sha256:aa3ba309f64723abd30b8fbb2dd99349d616cc79e09e37c52e10a69e84fe8d48", size = 25524 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/62/05/8db18cb6c2204170bf34ac85def1e40895667036df55e29482f26ddb6c00/llama_cloud_services-0.6.8-py3-none-any.whl", hash = "sha256:d59f6b294bf59d840486dbba9c1ff9424b646f572b3b4b131d7a2793cb64dc08", size = 29036 },
+    { url = "https://files.pythonhosted.org/packages/f3/8f/446aba7d8a378fddfde6d1464f1cbbb015bbb19af1f765dc669f5b7aac23/llama_cloud_services-0.6.9-py3-none-any.whl", hash = "sha256:fd3705b471a72bb31f3f20e4d4131b81f7e0ddae0c044197660a4741347ef2c4", size = 29621 },
 ]
 
 [[package]]
@@ -2461,7 +2502,7 @@ wheels = [
 
 [[package]]
 name = "llama-index-core"
-version = "0.12.26"
+version = "0.12.27"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -2488,9 +2529,9 @@ dependencies = [
     { name = "typing-inspect" },
     { name = "wrapt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ba/1b/3774b7b734ccc397022412bd7985ab468f8775f2edcae97f150ee34fd7b5/llama_index_core-0.12.26.tar.gz", hash = "sha256:20b59f2087b05c62c0b10ec379aa08a64343f1251f4cacc42cee32eabd0a50d1", size = 1358123 }
+sdist = { url = "https://files.pythonhosted.org/packages/06/62/f9f9f3c15b5ca618f8300435b039837b2d7585a38b1cdb5e6501a5651859/llama_index_core-0.12.27.tar.gz", hash = "sha256:5019f6e5e5dc2f05da5b802fb02bece213ae4f66ef328b7dd537ddbbbed71374", size = 1354682 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f9/47/400899026508faf074fe76672641dc4c59fb1c002424b917a6df2f529a18/llama_index_core-0.12.26-py3-none-any.whl", hash = "sha256:2c090c3982aa8ac68b6a118d7c543106d7d01cd4837d513602da2c31cb257424", size = 1616408 },
+    { url = "https://files.pythonhosted.org/packages/a0/99/75c84926be53a9c87992d66f1ad503f9248cb8fbc0c1e17943a62a27ce8f/llama_index_core-0.12.27-py3-none-any.whl", hash = "sha256:01f3f6f539092579cfaccff86c47b7e78c34638273d51417f40d173bf007a84d", size = 1616763 },
 ]
 
 [[package]]
@@ -2521,15 +2562,15 @@ wheels = [
 
 [[package]]
 name = "llama-index-llms-openai"
-version = "0.3.28"
+version = "0.3.29"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "llama-index-core" },
     { name = "openai" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/87/01/00371f661c942c631eb11b7e7a63d9d91c7afc6b4f3d9fc4307e2550534b/llama_index_llms_openai-0.3.28.tar.gz", hash = "sha256:e343ef2d78a669a1fd1374e0136fa490d18f223d1ed9b1912c419f6e3fb03f55", size = 16170 }
+sdist = { url = "https://files.pythonhosted.org/packages/ff/4d/2244a4cff1a91f0a1dd022874b724f5434c15393e0604dbc858972e496dd/llama_index_llms_openai-0.3.29.tar.gz", hash = "sha256:df6d2ff73852a4718094f6b02664569d28aba4b7848b44a510440c76f13c2e27", size = 22554 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/55/e8/9e1fc95a3a32e447777ccc930edb9d2df32bac4ca7acf5518b82b89d6f71/llama_index_llms_openai-0.3.28-py3-none-any.whl", hash = "sha256:b28475e1fd8ecd63e8c1b5873e405c0d4f8411ff7e251f9510ede1d8b7d4f50a", size = 16547 },
+    { url = "https://files.pythonhosted.org/packages/8b/92/8478adaee1e9ad59da61e2f642c024b578ada31cf0425aa139ca60463dd3/llama_index_llms_openai-0.3.29-py3-none-any.whl", hash = "sha256:654e00d0042b9698d2b4dc10c38f7ffff450ce978085a2472c722c026788f6bd", size = 23675 },
 ]
 
 [[package]]
@@ -2658,7 +2699,7 @@ wheels = [
 
 [[package]]
 name = "marimo"
-version = "0.11.30"
+version = "0.11.31"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
@@ -2679,9 +2720,9 @@ dependencies = [
     { name = "uvicorn" },
     { name = "websockets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/62/2c/07dc741cdef60ed7dbc10cd268f9a0c8667620c98ef39d0bb1dcffb590f0/marimo-0.11.30.tar.gz", hash = "sha256:ec7a6f65524bfdcd85cdc80cec8f9b253aae15f0209fde86e4a866eaf17d6d34", size = 10694287 }
+sdist = { url = "https://files.pythonhosted.org/packages/d9/21/ad93a1a8e77b721af492b4e43526e5a9b5decbfb1ae56748db9616072a8a/marimo-0.11.31.tar.gz", hash = "sha256:b795ad634db7e64026bfcaa6fd22bdbacc0407a497f3a1e8172f332ce82e8ed4", size = 10696643 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8f/11/a8a7c292e11ed3adfc7e079c6962b1e96cb1d42b8724f419a1f134d80447/marimo-0.11.30-py3-none-any.whl", hash = "sha256:b43bc477b21d9f4129e8f9bacfb9abf7f784ce27b7861f66f79f56f4d1f82ade", size = 11044904 },
+    { url = "https://files.pythonhosted.org/packages/4b/8a/fa6e39775351f377f495b96c50ed74eabfad8fe7c5f85e0af40b4f7af82c/marimo-0.11.31-py3-none-any.whl", hash = "sha256:96d731ddc2e952432927a1dc00535dbbe3ee136bd22c4655a17a710e51a30ef5", size = 11047731 },
 ]
 
 [[package]]
@@ -3961,6 +4002,19 @@ wheels = [
 ]
 
 [[package]]
+name = "pydantic-settings"
+version = "2.8.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/88/82/c79424d7d8c29b994fb01d277da57b0a9b09cc03c3ff875f9bd8a86b2145/pydantic_settings-2.8.1.tar.gz", hash = "sha256:d5c663dfbe9db9d5e1c646b2e161da12f0d734d422ee56f567d0ea2cee4e8585", size = 83550 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0b/53/a64f03044927dc47aafe029c42a5b7aabc38dfb813475e0e1bf71c4a59d0/pydantic_settings-2.8.1-py3-none-any.whl", hash = "sha256:81942d5ac3d905f7f3ee1a70df5dfb62d5569c12f51a5a647defc1c3d9ee2e9c", size = 30839 },
+]
+
+[[package]]
 name = "pygments"
 version = "2.19.1"
 source = { registry = "https://pypi.org/simple" }
@@ -4008,14 +4062,14 @@ wheels = [
 
 [[package]]
 name = "pymupdf4llm"
-version = "0.0.18"
+version = "0.0.19"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pymupdf" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/95/cb/2d90763726ccf91a5bf69c15e6166fcdcc49d522861fe11b32dced2710c8/pymupdf4llm-0.0.18.tar.gz", hash = "sha256:1f905ec97c70cac14549df526568122cdf21d0431bd56ec494ac49d2676a0a29", size = 26000 }
+sdist = { url = "https://files.pythonhosted.org/packages/43/92/1c37f7a586075bf9608a80f7b5c5e418a1e8a4f61c45e1011c71917cc492/pymupdf4llm-0.0.19.tar.gz", hash = "sha256:87bf871fbce9c372dd17cefa13890bbc20dd8251703e2ff0aaaed21401d27c5f", size = 27032 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2a/db/25d4b63d22bcb7e1ab289f42268ab74d0a36fb95a6264855f770ff3451c4/pymupdf4llm-0.0.18-py3-none-any.whl", hash = "sha256:4817fc7b6b00eed93c5bf2edf7766534a821fc5eba09f6408e412e6b11699f4e", size = 26824 },
+    { url = "https://files.pythonhosted.org/packages/39/8c/40956be6d3760d49e6d6ea562b3f33d992e0209d367d97de3000c1b75b95/pymupdf4llm-0.0.19-py3-none-any.whl", hash = "sha256:b9701f104d26b29f3855d23504b6ab1dbc90ce45415b2f6170e169539478d384", size = 27688 },
 ]
 
 [[package]]
@@ -4841,17 +4895,26 @@ wheels = [
 ]
 
 [[package]]
+name = "tabulate"
+version = "0.9.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ec/fe/802052aecb21e3797b8f7902564ab6ea0d60ff8ca23952079064155d1ae1/tabulate-0.9.0.tar.gz", hash = "sha256:0095b12bf5966de529c0feb1fa08671671b3368eec77d7ef7ab114be2c068b3c", size = 81090 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/40/44/4a5f08c96eb108af5cb50b41f76142f0afa346dfa99d5296fe7202a11854/tabulate-0.9.0-py3-none-any.whl", hash = "sha256:024ca478df22e9340661486f85298cff5f6dcdba14f3813e8830015b9ed1948f", size = 35252 },
+]
+
+[[package]]
 name = "tavily-python"
-version = "0.5.2"
+version = "0.5.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "requests" },
     { name = "tiktoken" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e9/6c/d868e5e065717162db6d5e7490487e1b74d818237e64d53768d3532f89e0/tavily_python-0.5.2.tar.gz", hash = "sha256:7796641d0045a014a8c5b3e9250f6f0b525455436f5d1b0005966f7bc52b3cd1", size = 108156 }
+sdist = { url = "https://files.pythonhosted.org/packages/00/c5/315bc4998cff458b095b87760255fcee3319a8332b40a3ac3d2dcb35afe5/tavily_python-0.5.3.tar.gz", hash = "sha256:f001b55035924ec6684713114ab8733383450e38b0f5d99f27e14e7e7535a547", size = 108398 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2f/2a/30271bc593818c5d84a61b523f851b52fb1f1c393bebac3ad3d2ab8ee1b6/tavily_python-0.5.2-py3-none-any.whl", hash = "sha256:0d77739ef338f3aeb0fcca66b2b857c283455e36ffeb3ddd33917b0c211cf9cd", size = 44312 },
+    { url = "https://files.pythonhosted.org/packages/12/63/bb84047d570e040048ca0a1d0396580bd73a7ef35dce610c8e52817748e3/tavily_python-0.5.3-py3-none-any.whl", hash = "sha256:cbf82f6b208807d25ef9ff21ab73a86a4b1013c6d5ed22a28816707a9d2e48d6", size = 44373 },
 ]
 
 [[package]]
