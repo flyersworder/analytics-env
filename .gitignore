@@ -167,6 +167,7 @@ cython_debug/
 
 # data
 data/
+*.pdf
 
 # windsurf
 .windsurfrules
