@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.8.5  # Use the latest stable version
+    rev: v0.12.0  # Use the latest stable version
     hooks:
       - id: ruff
         args: [--fix, "--line-length=88"]
@@ -14,7 +14,7 @@ repos:
             .ipynb_checkpoints/
           )
   - repo: https://github.com/psf/black
-    rev: 24.10.0
+    rev: 25.1.0
     hooks:
       - id: black
         args: [--line-length=88]
@@ -28,7 +28,7 @@ repos:
             .ipynb_checkpoints/
           )
   - repo: https://github.com/flyersworder/sqlnbfmt
-    rev: v0.1.8
+    rev: v0.19
     hooks:
       - id: sqlnbfmt
         name: sqlnbfmt
@@ -69,7 +69,7 @@ repos:
             .ipynb_checkpoints/
           )
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: 3.3.0
+    rev: 3.4.1
     hooks:
       - id: sqlfluff-fix
         args: ["--dialect", "ansi"]
