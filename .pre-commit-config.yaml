@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.12.0  # Use the latest stable version
+    rev: v0.12.10  # Use the latest stable version
     hooks:
       - id: ruff
         args: [--fix, "--line-length=88"]
@@ -69,7 +69,7 @@ repos:
             .ipynb_checkpoints/
           )
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: 3.4.1
+    rev: 3.4.2
     hooks:
       - id: sqlfluff-fix
         args: ["--dialect", "ansi"]
@@ -96,7 +96,7 @@ repos:
             .ipynb_checkpoints/
           )
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: end-of-file-fixer
         exclude: |
