@@ -16,22 +16,13 @@ format:
     smooth-scroll: true
     link-external-newwindow: true
 
+  pdf:
+    documentclass: scrreprt
+    toc: true
+    number-sections: true
+    fig-format: png
+    fig-dpi: 150
+    keep-tex: false
+
 execute:
   echo: false
-
-  pdf:
-    documentclass: book
-    classoption: [11pt, oneside]
-    geometry:
-      - top=1in
-      - bottom=1in
-      - left=1.25in
-      - right=1.25in
-    toc: true
-    toc-depth: 3
-    number-sections: true
-    number-depth: 3
-    fig-width: 7
-    fig-height: 5
-    fig-pos: 'htbp'
-    keep-tex: true

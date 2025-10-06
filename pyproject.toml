@@ -46,6 +46,7 @@ dependencies = [
     "docling>=2.37.0",
     "pdfplumber>=0.11.7",
     "langextract>=1.0.8",
+    "kaleido==0.2.1",
 ]
 
 # pyproject.toml
