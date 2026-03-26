@@ -60,7 +60,7 @@ Install only what you need:
 | Group | Install command | What's included |
 |-------|----------------|-----------------|
 | **Core** | `uv sync` | pandas, scipy, plotly, duckdb, matplotlib, seaborn, statsmodels, notebook, marimo |
-| **LLM** | `uv sync --extra llm` | LangChain, CrewAI, LlamaIndex, aisuite, instructor, Tavily |
+| **LLM** | `uv sync --extra llm` | LangChain, CrewAI, LlamaIndex, aisuite, Tavily |
 | **PDF** | `uv sync --extra pdf` | docling, pdfplumber, pymupdf4llm, pdf2docx, reportlab |
 | **Dev** | `uv sync --extra dev` | black, ruff, pytest, sqlfluff, sqlglot, nbqa, nbstripout |
 | **All** | `uv sync --all-extras` | Everything above |
