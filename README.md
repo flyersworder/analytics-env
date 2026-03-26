@@ -67,10 +67,39 @@ Install only what you need:
 | Group | Install command | What's included |
 |-------|----------------|-----------------|
 | **Core** | `uv sync` | pandas, scipy, plotly, duckdb, matplotlib, seaborn, statsmodels, notebook, marimo |
-| **LLM** | `uv sync --extra llm` | LangChain, CrewAI, LlamaIndex, aisuite, Tavily |
+| **LLM** | `uv sync --extra llm` | LangChain, langchain-openai, langchain-anthropic, langchain-ollama, langchain-chroma, ChromaDB |
 | **PDF** | `uv sync --extra pdf` | docling, pdfplumber, pymupdf4llm, pdf2docx, reportlab |
 | **Dev** | `uv sync --extra dev` | black, ruff, pytest, sqlfluff, sqlglot, nbqa, nbstripout |
 | **All** | `uv sync --all-extras` | Everything above |
+
+## LLM Workflows
+
+The template includes example notebooks for three LLM-driven analytics patterns:
+
+| Notebook | Pattern | What it demonstrates |
+|----------|---------|---------------------|
+| [llm_code_generation.ipynb](notebooks/llm_code_generation.ipynb) | Code generation | Pandas DataFrame agent — ask questions in English, get code + results |
+| [llm_data_qa_rag.ipynb](notebooks/llm_data_qa_rag.ipynb) | Data Q&A with RAG | ChromaDB vector store + data dictionary retrieval for grounded answers |
+| [llm_automated_pipeline.ipynb](notebooks/llm_automated_pipeline.ipynb) | Automated pipeline | LCEL chain with Pydantic structured output for batch text processing |
+
+### Provider Setup
+
+Each notebook supports multiple LLM providers. Set the relevant API key in `.env`:
+
+| Provider | Env variable | Notes |
+|----------|-------------|-------|
+| OpenAI | `OPENAI_API_KEY` | GPT-4o, text-embedding-3-small |
+| Anthropic | `ANTHROPIC_API_KEY` | Claude Sonnet |
+| Google | `GOOGLE_API_KEY` | Gemini 2.5 Flash |
+| Ollama | (none — local) | [Install Ollama](https://ollama.com), then `ollama pull llama3.2` |
+
+### Local Models with Ollama
+
+For fully offline operation, use [Ollama](https://ollama.com) as both LLM and embedding provider:
+
+- **Embeddings** (`nomic-embed-text`): ~2GB RAM, runs on CPU
+- **Generation** (`llama3.2`, `mistral`): 8GB+ RAM recommended, GPU significantly improves speed
+- Cloud providers are recommended for production workloads
 
 ## Development Workflow
 
