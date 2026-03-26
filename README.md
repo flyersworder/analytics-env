@@ -4,6 +4,7 @@
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![prek](https://img.shields.io/badge/pre--commit-prek-brightgreen?logo=pre-commit)](https://github.com/j178/prek)
 [![Template](https://img.shields.io/badge/use%20this-template-blue?logo=github)](https://github.com/flyersworder/analytics-env/generate)
 
 A standardized analytics environment template with pre-configured tooling for data science, LLM integration, and document processing.
