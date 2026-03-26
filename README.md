@@ -118,7 +118,3 @@ make docs     # Render via Quarto
 | `make test` | Run pytest |
 | `make docs` | Render Quarto notebooks |
 | `make clean` | Remove caches and build artifacts |
-
-## Further Reading
-
-See [docs/analytics_environment.qmd](docs/analytics_environment.qmd) for a presentation on the rationale behind this template's design decisions.
