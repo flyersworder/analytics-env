@@ -16,6 +16,7 @@ A standardized analytics environment template with pre-configured tooling for da
 - **SQL formatting** in Jupyter notebooks with sqlnbfmt
 - **Testing** with pytest and automated notebook validation
 - **CI/CD** with GitHub Actions (lint + test on every PR)
+- **LLM workflows** — example notebooks for code generation, RAG data Q&A, and automated pipelines with multi-provider support (OpenAI, Anthropic, Google, Ollama)
 - **Notebook rendering** with Quarto (HTML and PDF with Plotly support)
 
 ## Quick Start
