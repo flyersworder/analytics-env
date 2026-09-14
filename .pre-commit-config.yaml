@@ -48,6 +48,8 @@ repos:
     hooks:
       - id: nbqa-black
         args: [--line-length=88]
+        # Keep in sync with the black hook rev above (nbQA installs it unpinned).
+        additional_dependencies: [black==26.3.1]
         exclude: |
           (^|/)(
             venv/|
@@ -59,6 +61,9 @@ repos:
           )
       - id: nbqa-ruff
         args: [--fix, "--line-length=88"]
+        # Keep in sync with the ruff hook rev above; unpinned, nbQA installs
+        # the latest ruff and picks up new default rules (e.g. ruff 0.16).
+        additional_dependencies: [ruff==0.15.7]
         exclude: |
           (^|/)(
             venv/|
