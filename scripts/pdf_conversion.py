@@ -1,16 +1,17 @@
-from pathlib import Path
 import json
+from pathlib import Path
 
-# docling imports
-from docling.document_converter import DocumentConverter, PdfFormatOption
-from docling.datamodel.base_models import InputFormat
-from docling.datamodel.pipeline_options import PdfPipelineOptions, TableFormerMode
-from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
+import fitz  # PyMuPDF
 
 # other pdf libraries
 import pdfplumber
+from docling.backend.pypdfium2_backend import PyPdfiumDocumentBackend
+from docling.datamodel.base_models import InputFormat
+from docling.datamodel.pipeline_options import PdfPipelineOptions, TableFormerMode
+
+# docling imports
+from docling.document_converter import DocumentConverter, PdfFormatOption
 from pymupdf4llm import to_markdown
-import fitz  # PyMuPDF
 
 # --- Configuration ---
 PROJECT_ROOT = Path(__file__).parent.parent

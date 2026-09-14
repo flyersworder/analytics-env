@@ -4,21 +4,20 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Set, Optional, Dict, Union
 
 import astor
 import nbformat
 import yaml
-from sqlglot import parse_one, errors
+from sqlglot import errors, parse_one
 
 
 @dataclass
 class FormattingConfig:
     """Configuration for SQL formatting."""
 
-    sql_keywords: Set[str]
-    function_names: Set[str]
-    sql_decorators: Set[str]
+    sql_keywords: set[str]
+    function_names: set[str]
+    sql_decorators: set[str]
     single_line_threshold: int = 80
     preserve_comments: bool = True
     indent_width: int = 4
@@ -26,8 +25,6 @@ class FormattingConfig:
 
 class SQLFormattingError(Exception):
     """Custom exception for SQL formatting errors."""
-
-    pass
 
 
 def setup_logging(level: str = "INFO") -> logging.Logger:
@@ -42,7 +39,7 @@ def setup_logging(level: str = "INFO") -> logging.Logger:
     return logger
 
 
-def load_config(config_path: Union[str, Path] = "config.yaml") -> FormattingConfig:
+def load_config(config_path: str | Path = "config.yaml") -> FormattingConfig:
     """Loads configuration from a YAML file."""
     config_file = Path(config_path)
     if not config_file.is_file():
@@ -71,9 +68,9 @@ def load_config(config_path: Union[str, Path] = "config.yaml") -> FormattingConf
 
 def format_sql_code(
     sql_code: str,
-    dialect: Optional[str],
+    dialect: str | None,
     config: FormattingConfig,
-    placeholders: Optional[Dict[str, str]] = None,
+    placeholders: dict[str, str] | None = None,
     force_single_line: bool = False,
     is_magic_command: bool = False,
     is_cell_magic: bool = False,
@@ -166,7 +163,7 @@ class SQLStringFormatter(ast.NodeTransformer):
     """AST NodeTransformer that formats SQL strings."""
 
     def __init__(
-        self, config: FormattingConfig, dialect: Optional[str], logger: logging.Logger
+        self, config: FormattingConfig, dialect: str | None, logger: logging.Logger
     ):
         super().__init__()
         self.config = config
@@ -199,7 +196,7 @@ class SQLStringFormatter(ast.NodeTransformer):
 
         return keyword_count >= 2 or has_sql_pattern
 
-    def extract_fstring_parts(self, node: ast.JoinedStr) -> tuple[str, Dict[str, str]]:
+    def extract_fstring_parts(self, node: ast.JoinedStr) -> tuple[str, dict[str, str]]:
         """Extracts parts of an f-string, preserving expressions."""
         sql_parts = []
         placeholders = {}
@@ -219,8 +216,8 @@ class SQLStringFormatter(ast.NodeTransformer):
         return "".join(sql_parts), placeholders
 
     def format_sql_node(
-        self, node: Union[ast.Constant, ast.JoinedStr], force_single_line: bool = False
-    ) -> Optional[ast.AST]:
+        self, node: ast.Constant | ast.JoinedStr, force_single_line: bool = False
+    ) -> ast.AST | None:
         """Formats SQL code in AST nodes."""
         try:
             if isinstance(node, ast.Constant) and isinstance(node.value, str):
@@ -309,9 +306,9 @@ class SQLStringFormatter(ast.NodeTransformer):
 
 
 def process_notebook(
-    notebook_path: Union[str, Path],
+    notebook_path: str | Path,
     config: FormattingConfig,
-    dialect: Optional[str],
+    dialect: str | None,
     logger: logging.Logger,
 ) -> bool:
     """Processes a Jupyter notebook."""
@@ -343,7 +340,7 @@ def process_notebook(
                 if stripped.startswith("#"):
                     continue  # Skip comment lines
 
-                if stripped.startswith("%%sql") or stripped.startswith("%sql"):
+                if stripped.startswith(("%%sql", "%sql")):
                     magic_cmd = stripped.split()[0]
                     magic_cmd_index = idx
                     break  # Magic command found
