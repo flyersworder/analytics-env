@@ -79,7 +79,6 @@ lint.extend-ignore = [
     "PLR0913",
     "PLR0915",
     "SIM102",
-    "UP038",
     "BLE001",
     "TRY300",
     "RET504",

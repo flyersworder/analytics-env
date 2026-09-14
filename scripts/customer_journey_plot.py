@@ -1,6 +1,7 @@
-import plotly.graph_objects as go
-import pandas as pd
 from datetime import timedelta
+
+import pandas as pd
+import plotly.graph_objects as go
 
 
 def wrap_text(text, max_chars=40):
@@ -54,7 +55,7 @@ def create_customer_journey_with_ft_style(
             x=0.5,
             y=0.5,
             showarrow=False,
-            font=dict(size=16, color="red"),
+            font={"size": 16, "color": "red"},
         )
         fig.update_layout(
             title="Customer Journey Timeline (No Events)",
@@ -109,11 +110,11 @@ def create_customer_journey_with_ft_style(
                 x=[row["Time"]],
                 y=[row["Journey_Position"]],
                 mode="markers",
-                marker=dict(
-                    size=18 if row["Is_Key_Event"] else 14,
-                    color="#5a5a5a" if not row["Is_Key_Event"] else "#d62728",
-                    line=dict(width=1.5, color="black"),
-                ),
+                marker={
+                    "size": 18 if row["Is_Key_Event"] else 14,
+                    "color": "#5a5a5a" if not row["Is_Key_Event"] else "#d62728",
+                    "line": {"width": 1.5, "color": "black"},
+                },
                 hovertext=f"{row['Activity']}: {row['Description']}",
                 hoverinfo="text",
                 showlegend=False,  # Disable legend for individual events
@@ -136,7 +137,7 @@ def create_customer_journey_with_ft_style(
             arrowcolor="#999999",
             ax=0,
             ay=-50,  # Adjust position slightly above the marker
-            font=dict(size=12, color="#333333"),
+            font={"size": 12, "color": "#333333"},
             align="left",
             bgcolor="#f9f9f9",
             bordercolor="#cccccc",
@@ -151,7 +152,7 @@ def create_customer_journey_with_ft_style(
                 x=[None],
                 y=[None],
                 mode="markers",
-                marker=dict(size=10, color=color),
+                marker={"size": 10, "color": color},
                 name=journey,
             )
         )
@@ -159,24 +160,24 @@ def create_customer_journey_with_ft_style(
     # Style adjustments for FT aesthetic
     fig.update_layout(
         title="Customer Journey Timeline (FT Style)",
-        xaxis=dict(
-            title="Time",
-            range=[start_date, end_date],
-            showgrid=False,
-            showline=True,
-            linecolor="#999999",
-            tickformat="%Y-%m-%d",
-            tickfont=dict(size=12, color="#333333"),
-        ),
-        yaxis=dict(
-            title="Journey Stages",
-            tickmode="array",
-            tickvals=list(journey_positions.values()),
-            ticktext=list(journey_positions.keys()),
-            showgrid=False,
-            zeroline=False,
-        ),
-        margin=dict(l=50, r=50, t=50, b=50),
+        xaxis={
+            "title": "Time",
+            "range": [start_date, end_date],
+            "showgrid": False,
+            "showline": True,
+            "linecolor": "#999999",
+            "tickformat": "%Y-%m-%d",
+            "tickfont": {"size": 12, "color": "#333333"},
+        },
+        yaxis={
+            "title": "Journey Stages",
+            "tickmode": "array",
+            "tickvals": list(journey_positions.values()),
+            "ticktext": list(journey_positions.keys()),
+            "showgrid": False,
+            "zeroline": False,
+        },
+        margin={"l": 50, "r": 50, "t": 50, "b": 50},
         plot_bgcolor="#ffffff",
         height=700,
         showlegend=True,

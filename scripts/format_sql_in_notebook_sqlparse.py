@@ -1,12 +1,13 @@
-import nbformat
-import re
-import sqlparse
-import logging
-import sys
-import difflib
 import argparse
-import yaml
+import difflib
+import logging
+import re
+import sys
 from pathlib import Path
+
+import nbformat
+import sqlparse
+import yaml
 
 # Set up logging
 logger = logging.getLogger(__name__)

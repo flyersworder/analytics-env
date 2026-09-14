@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.15.7  # Use the latest stable version
+    rev: v0.16.7  # Use the latest stable version
     hooks:
       - id: ruff
         args: [--fix, "--line-length=88"]
@@ -14,7 +14,7 @@ repos:
             .ipynb_checkpoints/
           )
   - repo: https://github.com/psf/black
-    rev: 26.3.1
+    rev: 26.5.1
     hooks:
       - id: black
         args: [--line-length=88]
@@ -49,7 +49,7 @@ repos:
       - id: nbqa-black
         args: [--line-length=88]
         # Keep in sync with the black hook rev above (nbQA installs it unpinned).
-        additional_dependencies: [black==26.3.1]
+        additional_dependencies: [black==26.5.1]
         exclude: |
           (^|/)(
             venv/|
@@ -59,22 +59,10 @@ repos:
             dist/|
             .ipynb_checkpoints/
           )
-      - id: nbqa-ruff
-        args: [--fix, "--line-length=88"]
-        # Keep in sync with the ruff hook rev above; unpinned, nbQA installs
-        # the latest ruff and picks up new default rules (e.g. ruff 0.16).
-        additional_dependencies: [ruff==0.15.7]
-        exclude: |
-          (^|/)(
-            venv/|
-            env/|
-            .venv/|
-            build/|
-            dist/|
-            .ipynb_checkpoints/
-          )
+      # No nbqa-ruff: the ruff hook lints .ipynb natively and is cell-aware
+      # (nbQA concatenates cells, causing false B018 on display expressions).
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: 4.0.4
+    rev: 4.3.0
     hooks:
       - id: sqlfluff-fix
         args: ["--dialect", "ansi"]
